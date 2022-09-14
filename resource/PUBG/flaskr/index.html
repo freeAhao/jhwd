@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>该菜还菜</title>
+    <script src="https://cdn.staticfile.org/socket.io/4.0.1/socket.io.min.js" crossorigin="anonymous"></script>
+    <style>
+
+img{
+    width: auto;  
+    height: 12vh;  
+    max-width: 150%;  
+    max-height: 150%; 
+}
+    </style>
+</head>
+<body>
+    <div>
+        <img id="pose" alt="">
+    </div>
+
+    <br>
+
+    <div id="w2">
+        <img class="weapon" alt="">
+        <img class="scope"  alt="">
+        <img class="a1"  alt="">
+        <img class="a2"  alt="">
+        <img class="a3"  alt="">
+        <img class="a4"  alt="">
+    </div>
+
+    <br>
+
+    <div id="w1">
+        <img class="weapon"  alt="">
+        <img class="scope"  alt="">
+        <img class="a1"  alt="">
+        <img class="a2"  alt="">
+        <img class="a3"  alt="">
+        <img class="a4"  alt="">
+    </div>
+
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+
+        pose = document.querySelector("img#pose")
+
+        w1weapon = document.querySelector("#w1 > img.weapon")
+        w1scope = document.querySelector("#w1 > img.scope")
+        w1a1 = document.querySelector("#w1 > img.a1")
+        w1a2 = document.querySelector("#w1 > img.a2")
+        w1a3 = document.querySelector("#w1 > img.a3")
+        w1a4 = document.querySelector("#w1 > img.a4")
+
+        w2weapon = document.querySelector("#w2 > img.weapon")
+        w2scope = document.querySelector("#w2 > img.scope")
+        w2a1 = document.querySelector("#w2 > img.a1")
+        w2a2 = document.querySelector("#w2 > img.a2")
+        w2a3 = document.querySelector("#w2 > img.a3")
+        w2a4 = document.querySelector("#w2 > img.a4")
+
+
+        socket.on('connect', function () {
+            console.log("connect")
+            document.querySelector("#w1").style.background = "#FFFFFF"
+            document.querySelector("#w2").style.background = "#FFFFFF"
+            socket.emit('my_event', { data: 'I\'m connected!' });
+        });
+        socket.on('disconnect', function () {
+            console.log("dis connect")
+            document.querySelector("#w1").style.background = "#FF0000"
+            document.querySelector("#w2").style.background = "#FF0000"
+        });
+
+        socket.on('update', function (data) {
+            console.log(data)
+            switch (data[0]){
+                case "changeweapon":
+                    if (data[1] == "1"){
+                        document.querySelector("#w1").style.background = "#00FF00"
+                        document.querySelector("#w2").style.background = "#FFFFFF"
+                    } else if (data[1]=="2") {
+                        document.querySelector("#w2").style.background = "#00FF00"
+                        document.querySelector("#w1").style.background = "#FFFFFF"
+                    } else {
+                        document.querySelector("#w1").style.background = "#FFFFFF"
+                        document.querySelector("#w2").style.background = "#FFFFFF"
+                    }
+                    break
+                case "pose":
+                    pose.src = data[1]
+                    break;
+                case "weapon1":
+                    w1weapon.src = data[1]
+                    break;
+                case "weapon2":
+                    w2weapon.src = data[1]
+                    break;
+                case "attachment":
+                    w1scope.src = data[1][0][0]
+                    w1a1.src = data[1][0][1]
+                    w1a2.src = data[1][0][2]
+                    w1a3.src = data[1][0][3]
+                    w1a4.src = data[1][0][4]
+
+                    w2scope.src = data[1][1][0]
+                    w2a1.src = data[1][1][1]
+                    w2a2.src = data[1][1][2]
+                    w2a3.src = data[1][1][3]
+                    w2a4.src = data[1][1][4]
+                    break;
+            }
+        });
+
+    </script>
+</body>
+</html>

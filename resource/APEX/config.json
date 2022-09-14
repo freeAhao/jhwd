@@ -1,0 +1,32 @@
+{
+    "macro_config": {
+        "driver": "LGS",
+        "adsmode": "HOLD",
+        "aimbutton": 4,
+        "autorecognize": true,
+        "debug": false,
+        "weapon": "none",
+        "scope": 1,
+        "pose": 1,
+        "autoshift": true,
+        "autoshiftscope": 3,
+        "a2": 1,
+        "a3": 1,
+        "keybinds": {
+            "lctrl,lshift,lalt+5": "reloadconfig"
+        }
+    },
+    "pose": {
+        "accuracy": 10.0,
+        "sleep": 50.0
+    },
+    "attachment": {
+        "accuracy": 15.0,
+        "sleep": 100.0
+    },
+    "weapon": {
+        "accuracy": 0.5,
+        "sleep": 76
+    },
+    "app": {}
+}
