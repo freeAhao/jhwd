@@ -1,6 +1,7 @@
 from controller.ApexRecognizer import AIRecoginzer, BloodRecoginzer, WeaponRecoginzer
 from model.Settings import Settings
 from model.Status import Status
+from model.Weapon import Weapon
 from myutils.QtUtils import set_label_img, start_q_thread
 
 from PyQt6.QtCore import pyqtSignal, QObject
@@ -109,12 +110,14 @@ class WeaponRecognizeController(RecognizeController):
         #     self.status.no_weapon()
         if "weapon" in d:
             weaponpath = d["weapon"]["weaponpath"]
-            if self.status.weapon.get_weapon_img_path() != weaponpath:
-                print("更新武器")
+            if not self.status.weapon:
+                self.status.weapon = Weapon()
+            if  self.status.weapon.get_weapon_img_path() != weaponpath:
                 self.view.set_img1(weaponpath)
                 self.status.weapon.set_weapon_img_path(weaponpath)
                 self.status.write_config()
                 self.status.updateQueue.put("weapon1")
+                print("更新武器",self.status.weapon.weapon_name)
         if "currentimg" in d:
             self.view.set_img2(d["currentimg"])
 

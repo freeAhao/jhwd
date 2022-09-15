@@ -360,9 +360,9 @@ class QGameSettingWidget(QWidget):
     def clean_config(self):
         tempdir = tempfile.gettempdir()
         for i in ["config.lua","weapon.lua","x.lua"]:
-            tempfile = tempdir+"\\"+i
+            f = tempdir+"\\"+i
             try:
-                shutil.rmtree(tempfile)
+                shutil.rmtree(f)
             except:
                 continue
 

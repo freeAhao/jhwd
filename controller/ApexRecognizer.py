@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import math
 import os
 from tempfile import gettempdir
 import time
@@ -50,6 +51,7 @@ class Recognizer(QObject):
                 point = self.boxs[k]
                 newpoint = [point[0]+monitor["left"],point[1]+monitor["top"]]
                 self.boxs[k] = newpoint
+            self.resize_rate = float(1080/height)
         except FileNotFoundError as e:
             raise FileNotFoundError("不支持的分辨率{}x{}".format(width,height))
 
@@ -84,8 +86,10 @@ class WeaponRecoginzer(Recognizer):
         return round(np.sum(cvimg)/6311250*100)>=8
 
     def recognize(self):
-        icon_width = round(185 * self.resize_rate)
+        icon_scale = 180/45
         icon_height = round(45 * self.resize_rate)
+        icon_width = round(icon_height * icon_scale)
+
         box1 = (self.boxs["weapon1"][0],
                 self.boxs["weapon1"][1],
                 self.boxs["weapon1"][0] + icon_width,
@@ -117,8 +121,9 @@ class WeaponRecoginzer(Recognizer):
         self.qt_comunicate.update.emit(d) if self.qt_comunicate else None
 
     def screenshot(self):
-        icon_width = round(180 * self.resize_rate)
+        icon_scale = 180/45
         icon_height = round(45 * self.resize_rate)
+        icon_width = round(icon_height * icon_scale)
 
         box1 = (self.boxs["weapon1"][0],
                 self.boxs["weapon1"][1],

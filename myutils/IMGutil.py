@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import cv2 as cv
 from mss import mss
@@ -244,5 +245,9 @@ def to_black_white2(cvimg):
 
 def resize_img(cvimg, resize_rate):
     if resize_rate != 1:
-        cvimg = cv.resize(cvimg,(round(cvimg.shape[1]/resize_rate),round(cvimg.shape[0]/resize_rate)))
+        height,width,_= cvimg.shape
+        icon_scale = width/height
+        newHeight = math.ceil(height/resize_rate)
+        newWidth = math.ceil(icon_scale*newHeight)
+        cvimg = cv.resize(cvimg,(newWidth,newHeight))
     return cvimg
