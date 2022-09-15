@@ -1,9 +1,8 @@
-import json
 import yaml
 from pathlib import Path
 from model.Settings import Settings
-# import torch
-# import torchvision
+import torch
+import torchvision
 import numpy as np
 import cv2
 from time import time

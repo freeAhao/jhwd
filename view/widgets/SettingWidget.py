@@ -10,8 +10,8 @@ from model.Settings import Settings
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import  QWidget, QGridLayout,QMessageBox,QLabel,QPushButton,QRadioButton,QGroupBox
 
-from myutils.IMGutil import full_screenshot, get_screen_nums
-from myutils.QtUtils import appexit, apprestart, message_critical, message_info
+from myutils.IMGutil import  get_screen_nums
+from myutils.QtUtils import  apprestart, message_critical
 from view.widgets.AIWidget import QAiFix,QBloodFix
 from view.widgets.PubgAutoRecognizer import PubgAutoRecognizer
 from view.widgets.PubgRecoilAnalyzeWidget import ImageRecoilAnalyze2
@@ -29,7 +29,7 @@ class QSettingWidget(QWidget):
         super().__init__()
         self.apptab = apptab
         self.grid.addWidget(QGameSettingWidget(self))
-        self.grid.addWidget(QUpdateWidget())
+        # self.grid.addWidget(QUpdateWidget())
         self.setLayout(self.grid)
 
 class Updater(QObject):
@@ -363,8 +363,9 @@ class QGameSettingWidget(QWidget):
         for i in ["config.lua","weapon.lua","x.lua"]:
             f = tempdir+"\\"+i
             try:
-                shutil.rmtree(f)
-            except:
+                os.unlink(f.replace("\\","/"))
+            except Exception as e:
+                traceback.print_exc()
                 continue
 
     def init_models(self,game=None):

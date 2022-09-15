@@ -4,15 +4,12 @@ import os
 from tempfile import gettempdir
 import time
 from time import sleep
-import traceback
 
 import numpy as np
 import cv2 as cv
 from model.Settings import Settings
 from myutils.IMGutil import *
-from myutils.AIwithoutTorch import ORDML,OVINO
 from model.PubgStatus import Status
-from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 class Recognizer(QObject):

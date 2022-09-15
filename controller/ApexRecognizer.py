@@ -1,6 +1,5 @@
 from datetime import datetime
 import json
-import math
 import os
 from tempfile import gettempdir
 import time
@@ -11,11 +10,8 @@ import cv2 as cv
 from model.Settings import Settings
 from myutils.IMGutil import *
 from model.ApexStatus import Status
-from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
-from myutils.AIwithoutTorch import ORDML,OVINO
 from myutils.QtUtils import message_info
-# from utils.Yolov5Utils import Yolov5Utils
 
 class Recognizer(QObject):
     status = Status()

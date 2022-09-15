@@ -1,4 +1,3 @@
-import json
 import yaml
 from pathlib import Path
 import numpy as np
@@ -15,7 +14,7 @@ class AI():
         self.w = Settings().resource_dir+"weights/"
         self.INPUT_WIDTH         = 640
         self.INPUT_HEIGHT        = 640
-        self.SCORE_THRESHOLD     = 0.4
+        self.SCORE_THRESHOLD     = 0.7
         self.NMS_THRESHOLD       = 0.4
         self.CONFIDENCE_THRESHOLD= 0.4
         self.FONT_FACE           = cv2.FONT_HERSHEY_SIMPLEX
