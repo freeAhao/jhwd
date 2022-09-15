@@ -11,11 +11,9 @@ import cv2 as cv
 from model.Settings import Settings
 from myutils.IMGutil import *
 from myutils.AIwithoutTorch import ORDML,OVINO
-from model.Status import Status
+from model.PubgStatus import Status
 from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
-
-from myutils.QtUtils import message_critical
 
 class Recognizer(QObject):
     status = Status()
@@ -219,60 +217,6 @@ class PoseRecoginzer(Recognizer):
         filename = "{}_{:.2f}.png".format(datetime.now().timestamp(),self.resize_rate)
         cv.imwrite(filename, bwimg)
 
-class BloodRecoginzer(Recognizer):
-
-    xrate = 1
-    yrate = 0
-    h = (156,180)
-    s = (43,255)
-    v = (46,255)
-
-    def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0):
-        super().__init__(qt_comunicate, sleeptime,accuracy)
-
-    def recognize(self):
-        box = (round(self.resolution[0]/2 - round(40/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(80/1080*self.resolution[1])),
-               round(self.resolution[0]/2 + round(40/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(80/1080*self.resolution[1])))
-        width = (box[2]-box[0])
-        height = (box[3]-box[1])
-        center = (int((width/2)),int((height/2)))
-
-        img = screenshot(box)
-        cvimg = screenshot_to_cv(img)
-        cvimg = resize_img(cvimg,self.resize_rate)
-        hsv = cv.cvtColor(cvimg,cv.COLOR_BGR2HSV)
-
-        lower = np.array([self.h[0], self.s[0], self.v[0]], np.uint8)
-        upper = np.array([self.h[1], self.s[1], self.v[1]], np.uint8)
-
-        hsv = cv.medianBlur(hsv,9)
-        mask = cv.inRange(hsv, lower, upper)
-
-        if np.sum(mask[:,:])>30000:
-
-            blood = np.where(mask[:,:]==255)
-            dot1 = (np.min(blood[1]),np.min(blood[0]))
-            dot2 = (np.max(blood[1]),np.max(blood[0]))
-            blood_area = (dot2[1] - dot1[1]) * (dot2[0] -dot1[0])
-            screen_area = width * height
-
-            cv.rectangle(mask,dot1,dot2,(255,255,255))
-            blood_center = (round((dot2[0]-dot1[0])/2)+dot1[0], round((dot2[1]-dot1[1])/2)+dot1[1])
-            cv.line(mask,center,blood_center,(255,255,255))
-            movex = int((blood_center[0]-center[0])*self.xrate * (blood_area/screen_area))
-            movey = -int((blood_center[1]-center[1])*self.yrate)
-            if movey < 0:
-                movey = 0
-            self.qt_comunicate.update.emit({"move":(movex,movey)})
-            qimg = cv_img_to_qimg(mask)
-        else:
-            qimg = cv_img_to_qimg(cvimg)
-            self.qt_comunicate.update.emit({"move":(0,0)})
-
-        self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
-
 class AttachmentRecoginzer(Recognizer):
     printed = False
     def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0.5):
@@ -451,89 +395,3 @@ class AttachmentRecoginzer(Recognizer):
                 cvimg = cv.resize(cvimg,(27,27))
             cvimg = to_black_white(cvimg)
             cv.imwrite("./bp{}_{:.2f}.png".format(index+1,self.resize_rate),cvimg)
-
-class AIRecoginzer(Recognizer):
-
-    xrate = 0.2
-    yrate = 0
-
-    def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0):
-        super().__init__(qt_comunicate, sleeptime,accuracy)
-        try:
-            self.ai = ORDML()
-        except:
-            traceback.print_exc()
-            self.ai = None
-        # self.ai = OVINO()
-        # self.ai = PTORCH()
-
-    def recognize(self):
-        if not self.ai:
-            return
-        box = (round(self.resolution[0]/2 - round(320/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(320/1080*self.resolution[1])),
-               round(self.resolution[0]/2 + round(320/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(320/1080*self.resolution[1])))
-        width = (box[2]-box[0])
-        height = (box[3]-box[1])
-        center = (int((width/2)),int((height/2)))
-
-        img = screenshot(box)
-        cvimg = screenshot_to_cv(img)
-        # cvimg = resize_img(cvimg,self.resize_rate)
-
-        img,box = self.ai.detect(cvimg)
-        if box:
-            boxcenter = self.findclose(box,center,width,height)
-            if boxcenter:
-                cv.line(img,center,boxcenter,(255,255,255))
-
-                movex = int((boxcenter[0]-center[0])*self.xrate)
-                movey = int((boxcenter[1]-center[1])*self.yrate)
-                self.qt_comunicate.update.emit({"move":(movex,movey)})
-                # filename = "E:/Video/ai/"+str(time.time())+".jpg"
-                # cv.imwrite(filename,img)
-        else:
-            self.qt_comunicate.update.emit({"move":(0,0)})
-
-        qimg = cv_img_to_qimg(img)
-        self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
-    
-    def findclose(self,boxs,center,w,h):
-        count = 0
-        boxcenter = None
-        # 找到离中心最近的目标
-        closebox = None
-        for b in boxs:
-            # if ((b[2]*b[3])/(w*h)<0.01):
-            #     print(b[2]*b[3],w*h,(b[2]*b[3])/(w*h))
-            #     continue
-            # print(b[2]*b[3],w*h,(b[2]*b[3])/(w*h))
-            boxcenter_t = (
-                round(b[0]+(b[2]/2)),
-                round(b[1]+(b[3]/2)),
-            )
-            x = int(boxcenter_t[0]-center[0])
-            y = int(boxcenter_t[1]-center[1])
-            sumxy = x*x+y*y
-            if count == 0 or sumxy < count:
-                count == sumxy
-                boxcenter = boxcenter_t
-                closebox = b
-            else:
-                continue
-        # 识别率不高的情况下，不锁准心外的目标
-        if center[0] > closebox[0]-(self.ai.fixregion)*closebox[2] and center[0] < closebox[0]+(self.ai.fixregion+1)*closebox[2] and center[1] > closebox[1]-(self.ai.fixregion)*closebox[3] and center[1] < closebox[1]+(self.ai.fixregion+1)*closebox[3]:
-            return boxcenter
-        return None
-    
-    def changeEngine(self,engine):
-        print(engine)
-        if engine == "onnxruntime":
-            self.ai = ORDML()
-        if engine == "openvino":
-            self.ai = OVINO()
-        if engine == "pytorch":
-            pass
-        if engine == "tensortrt":
-            pass

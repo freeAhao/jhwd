@@ -128,7 +128,7 @@ class Status:
             config_content += "rattachment3={}\n".format(self.weapon1.a2 if self.weapon1.scope else 1)
             config_content += "rattachment4={}\n".format(self.weapon1.a3 if self.weapon1.scope else 1)
             config_content += "rattachment5={}\n".format(self.weapon1.a4 if self.weapon1.scope else 1)
-        
+
         if consoleshow:
             print("=== {} ===".format(msg))
             print(config_content)

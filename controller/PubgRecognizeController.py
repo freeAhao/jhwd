@@ -1,7 +1,7 @@
 from datetime import datetime
-from controller.PubgRecognizer import AIRecoginzer, BloodRecoginzer, PoseRecoginzer,WeaponRecoginzer,AttachmentRecoginzer
+from controller.PubgRecognizer import  PoseRecoginzer,WeaponRecoginzer,AttachmentRecoginzer
 from model.Settings import Settings
-from model.Status import Status
+from model.PubgStatus import Status
 from model.Weapon import Weapon
 from myutils.QtUtils import set_label_img, start_q_thread
 from controller.PubgRecognizer import Recognizer
@@ -211,99 +211,3 @@ class AttachmentRecognizeController(RecognizeController):
                 self.view.set_tips(index,"匹配图片：{}\n相似度：{}".format(path,similarity),1)
             self.status.updateQueue.put("attachment")
             self.status.write_config("attachment updated", False)
-
-class BloodRecognizeController(RecognizeController):
-
-    def __init__(self, view,start:bool) -> None:
-        super().__init__(view)
-        self.start_rec(start)
-
-        self.view.xRate.valueChanged.connect(self.changeRate)
-        self.view.yRate.valueChanged.connect(self.changeRate)
-
-        self.view.h.valueChanged.connect(self.changeColor)
-        self.view.s.valueChanged.connect(self.changeColor)
-        self.view.v.valueChanged.connect(self.changeColor)
-
-    def start_rec(self,start:bool=True):
-        self.recoginizer = BloodRecoginzer(self.c,0.001)
-        self.thread = start_q_thread(self.view, self.recoginizer,start)
-
-    def update(self, d:dict):
-        if "img" in d:
-            self.view.set_img(d["img"])
-        elif "move" in d:
-            movex = d["move"][0]
-            movey = d["move"][1]
-            self.status.change_fix(movex,movey)
-            self.view.set_move(movex,movey)
-
-    def changeRate(self):
-        xRate = self.view.xRate.value()
-        yRate = self.view.yRate.value()
-        self.recoginizer.xrate = xRate
-        self.recoginizer.yrate = yRate
-
-    def changeColor(self):
-        h = self.view.h.value()
-        s = self.view.s.value()
-        v = self.view.v.value()
-        self.recoginizer.h = h
-        self.recoginizer.s = s
-        self.recoginizer.v = v 
-
-class AIRecognizeController(RecognizeController):
-
-    def __init__(self, view,start:bool) -> None:
-        super().__init__(view)
-        self.start_rec(start)
-
-        self.view.xRate.valueChanged.connect(self.changeRate)
-        self.view.yRate.valueChanged.connect(self.changeRate)
-        self.view.airegion.valueChanged.connect(self.changeAiRegion)
-        self.view.fixregion.valueChanged.connect(self.changeFixRegion)
-
-        for btn in [ self.view.ordmlBTN, self.view.ovinoBTN, self.view.ptorchBTN, self.view.tensortBTN]:
-            btn.clicked.connect(self.changeEngine)
-
-    def start_rec(self,start:bool=True):
-        self.recoginizer = AIRecoginzer(self.c,0.001)
-        self.thread = start_q_thread(self.view, self.recoginizer,start)
-
-    def update(self, d:dict):
-        if "img" in d:
-            self.view.set_img(d["img"])
-        elif "move" in d:
-            movex = d["move"][0]
-            movey = d["move"][1]
-            self.status.change_fix(movex,movey)
-            self.view.set_move(movex,movey)
-    
-    def changeEngine(self):
-        for btn in [self.view.ordmlBTN, self.view.ovinoBTN, self.view.ptorchBTN, self.view.tensortBTN]:
-            if btn.isChecked():
-                if btn == self.view.ordmlBTN:
-                    self.recoginizer.changeEngine("onnxruntime")
-                elif btn == self.view.ovinoBTN:
-                    self.recoginizer.changeEngine("openvino")
-                elif btn == self.view.ptorchBTN:
-                    # self.recoginizer.changeEngine("pytorch")
-                    pass
-                elif btn == self.view.tensortBTN:
-                    # self.recoginizer.changeEngine("tensortrt")
-                    pass
-                break
-
-    def changeRate(self):
-        xRate = self.view.xRate.value()
-        yRate = self.view.yRate.value()
-        self.recoginizer.xrate = xRate
-        self.recoginizer.yrate = yRate
-
-    def changeAiRegion(self):
-        airegion = self.view.airegion.value()
-        self.recoginizer.ai.airegion = airegion
-
-    def changeFixRegion(self):
-        fixregion = self.view.fixregion.value()
-        self.recoginizer.ai.fixregion = fixregion

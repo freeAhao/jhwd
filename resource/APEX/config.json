@@ -26,7 +26,7 @@
     },
     "weapon": {
         "accuracy": 0.5,
-        "sleep": 500
+        "sleep": 94
     },
     "app": {}
 }

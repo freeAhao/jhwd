@@ -12,11 +12,12 @@ from PyQt6.QtWidgets import  QWidget, QGridLayout,QMessageBox,QLabel,QPushButton
 
 from myutils.IMGutil import full_screenshot, get_screen_nums
 from myutils.QtUtils import appexit, apprestart, message_critical, message_info
-from view.widgets.ApexAutoRecognizer import ApexAutoRecognizer
-from view.widgets.PubgAutoRecognizer import QAiFix, QBloodFix,PubgAutoRecognizer
+from view.widgets.AIWidget import QAiFix,QBloodFix
+from view.widgets.PubgAutoRecognizer import PubgAutoRecognizer
 from view.widgets.PubgRecoilAnalyzeWidget import ImageRecoilAnalyze2
 from controller.PubgMacroConfigController import MacroConfigController as PubgMacroConfigController
 from controller.PubgWeaponConfigController import WeaponConfigController as PubgWeaponConfigController
+from view.widgets.ApexAutoRecognizer import ApexAutoRecognizer
 from controller.ApexMacroConfigController import MacroConfigController as ApexMacroConfigController
 from controller.ApexWeaponConfigController import WeaponConfigController as ApexWeaponConfigController
 

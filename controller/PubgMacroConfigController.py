@@ -6,7 +6,7 @@ from model.KeyBinding import KeyBinding
 from model.KeyBindingTableModel import KeyBindingTableModel
 from model.MacroFunction import MacroFunction
 
-from model.Status import Status
+from model.PubgStatus import Status
 from model.Settings import Settings
 from view.widgets.PubgMacroConfigWidget import MacroEditDialog, QMacroConfig
 
