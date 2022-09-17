@@ -13,7 +13,7 @@ from myutils.IMGutil import *
 from myutils.AIwithoutTorch import ORDML,OVINO
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
-from myutils.QtUtils import start_q_thread
+from myutils.QtUtils import apprestart, start_q_thread
 
 class RecognizeCommunicate(QObject):
     update = pyqtSignal(dict)
@@ -104,7 +104,6 @@ class RecognizeController:
 
 class AIRecognizeController(RecognizeController):
 
-
     def __init__(self, view,start:bool) -> None:
         super().__init__(view)
         self.start_rec(start)
@@ -114,11 +113,17 @@ class AIRecognizeController(RecognizeController):
         self.view.airegion.valueChanged.connect(self.changeAiRegion)
         self.view.fixregion.valueChanged.connect(self.changeFixRegion)
 
-        for btn in [ self.view.ordmlBTN, self.view.ovinoBTN, self.view.ptorchBTN, self.view.tensortBTN]:
-            btn.clicked.connect(self.changeEngine)
+        for slider in [ self.view.ai_SCORE_THRESHOLD, self.view.ai_NMS_THRESHOLD, self.view.ai_CONFIDENCE_THRESHOLD]:
+            slider.valueChanged.connect(self.changeThreshold)
+
+        # for btn in [ self.view.ordmlBTN, self.view.ovinoBTN, self.view.ptorchBTN, self.view.tensortBTN]:
+        #     btn.clicked.connect(self.changeEngine)
+        self.view.providerBox.setCurrentIndex(self.view.providerBox.findData(Settings().app_config["ai"]))
+        self.view.providerBox.currentTextChanged.connect(self.changeEngine)
 
     def start_rec(self,start:bool=True):
-        self.recoginizer = AIRecoginzer(self.c,0.001)
+        provider = Settings().app_config["ai"] if "ai" in Settings().app_config else 'CPUExecutionProvider'
+        self.recoginizer = AIRecoginzer(self.c,0.001,0,provider=provider)
         self.thread = start_q_thread(self.view, self.recoginizer,start)
 
     def update(self, d:dict):
@@ -131,19 +136,21 @@ class AIRecognizeController(RecognizeController):
             self.view.set_move(movex,movey)
     
     def changeEngine(self):
-        for btn in [self.view.ordmlBTN, self.view.ovinoBTN, self.view.ptorchBTN, self.view.tensortBTN]:
-            if btn.isChecked():
-                if btn == self.view.ordmlBTN:
-                    self.recoginizer.changeEngine("onnxruntime")
-                elif btn == self.view.ovinoBTN:
-                    self.recoginizer.changeEngine("openvino")
-                elif btn == self.view.ptorchBTN:
-                    # self.recoginizer.changeEngine("pytorch")
-                    pass
-                elif btn == self.view.tensortBTN:
-                    # self.recoginizer.changeEngine("tensortrt")
-                    pass
-                break
+        provider = self.view.providerBox.currentData()
+        self.recoginizer.changeEngine(provider)
+        # for btn in [self.view.ordmlBTN, self.view.ovinoBTN, self.view.ptorchBTN, self.view.tensortBTN]:
+        #     if btn.isChecked():
+        #         if btn == self.view.ordmlBTN:
+        #             self.recoginizer.changeEngine("onnxruntime")
+        #         elif btn == self.view.ovinoBTN:
+        #             self.recoginizer.changeEngine("openvino")
+        #         elif btn == self.view.ptorchBTN:
+        #             # self.recoginizer.changeEngine("pytorch")
+        #             pass
+        #         elif btn == self.view.tensortBTN:
+        #             self.recoginizer.changeEngine("tensorrt")
+        #             pass
+        #         break
 
     def changeRate(self):
         xRate = self.view.xRate.value()
@@ -158,6 +165,15 @@ class AIRecognizeController(RecognizeController):
     def changeFixRegion(self):
         fixregion = self.view.fixregion.value()
         self.recoginizer.ai.fixregion = fixregion
+    
+    def changeThreshold(self):
+        score=self.view.ai_SCORE_THRESHOLD.value()
+        nms=self.view.ai_NMS_THRESHOLD.value()
+        confidence=self.view.ai_CONFIDENCE_THRESHOLD.value()
+
+        self.recoginizer.ai.SCORE_THRESHOLD=score
+        self.recoginizer.ai.NMS_THRESHOLD=nms
+        self.recoginizer.ai.CONFIDENCE_THRESHOLD=confidence
 
 class Recognizer(QObject):
     status = None
@@ -207,10 +223,10 @@ class AIRecoginzer(Recognizer):
     xrate = 0.2
     yrate = 0
 
-    def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0):
+    def __init__(self,qt_comunicate=None, sleeptime=0.01,accuracy=0,provider='CPUExecutionProvider',):
         super().__init__(qt_comunicate, sleeptime,accuracy)
         try:
-            self.ai = ORDML()
+            self.ai = ORDML(provider)
         except:
             traceback.print_exc()
             self.ai = None
@@ -278,15 +294,11 @@ class AIRecoginzer(Recognizer):
         return None
     
     def changeEngine(self,engine):
-        print(engine)
-        if engine == "onnxruntime":
-            self.ai = ORDML()
-        if engine == "openvino":
-            self.ai = OVINO()
-        if engine == "pytorch":
-            pass
-        if engine == "tensortrt":
-            pass
+        if engine in self.ai.providers.keys():
+            Settings().app_config["ai"] = engine
+            Settings().save_app_config_to_json()
+            apprestart()
+
 
 class BloodRecoginzer(Recognizer):
 

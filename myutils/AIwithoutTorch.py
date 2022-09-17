@@ -1,8 +1,10 @@
+from collections import namedtuple,OrderedDict
 import yaml
 from pathlib import Path
 import numpy as np
 import cv2
 from time import time
+import pip
 import onnxruntime
 from openvino.runtime import Core, get_batch, Layout
 
@@ -26,16 +28,9 @@ class AI():
         self.BLUE                = (255,178,50)
         self.YELLOW              = (0,255,255)
         self.RED                 = (0,0,255)
-        self.half                = False
+        self.fp16                = False
         self.airegion            = 0.25
         self.fixregion           = 1.5
-        # anchors = [[10, 13, 16, 30, 33, 23], [30, 61, 62, 45, 59, 119], [116, 90, 156, 198, 373, 326]]
-        # self.nl = len(anchors)
-        # self.na = len(anchors[0]) // 2
-        # self.grid = [np.zeros(1)] * self.nl
-        # self.stride = np.array([8., 16., 32.])
-        # self.anchor_grid = np.asarray(anchors, dtype=np.float32).reshape(self.nl, -1, 2)
-        pass
 
     def model(self,im):
         pass
@@ -152,13 +147,54 @@ class AI():
     
 class ORDML(AI):
 
-    def __init__(self) -> None:
-        super().__init__()
+    providers={
+        "DmlExecutionProvider": "onnxruntime-directml",
+        "CPUExecutionProvider": "onnxruntime",
+        "CUDAExecutionProvider": "onnxruntime-gpu"
+    }
 
-        options = onnxruntime.SessionOptions()
-        options.enable_mem_pattern = False
-        options.execution_mode = onnxruntime.ExecutionMode.ORT_SEQUENTIAL
-        session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['DmlExecutionProvider'], sess_options=options)
+    def uninstall(self):
+        # del self.session
+        # for p in self.providers:
+        #     try:
+        #         pip.main(['uninstall',"-y",self.providers[p]])
+        #     except:
+        #         pass
+        pass
+
+    def install(self,provider):
+        pip.main(['install',self.providers[provider],"-i","https://mirrors.bfsu.edu.cn/pypi/web/simple/","--trusted-host","mirrors.bfsu.edu.cn"])
+
+    def __init__(self,provider) -> None:
+        super().__init__()
+        # print(onnxruntime.get_all_providers())
+        # print(onnxruntime.get_available_providers())
+        # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['TensorrtExecutionProvider'], sess_options=options)
+        # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CUDAExecutionProvider'], sess_options=options)
+
+        # DirectML
+
+        if provider=="DmlExecutionProvider":
+            # self.install(provider)
+            options = onnxruntime.SessionOptions()
+            options.enable_mem_pattern = False
+            options.execution_mode = onnxruntime.ExecutionMode.ORT_SEQUENTIAL
+            session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['DmlExecutionProvider','CPUExecutionProvider'], sess_options=options)
+        elif provider=="CPUExecutionProvider":
+            # self.install(provider)
+            options = onnxruntime.SessionOptions()
+            session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CPUExecutionProvider'], sess_options=options)
+        elif provider=="CUDAExecutionProvider":
+            # self.install(provider)
+            options = onnxruntime.SessionOptions()
+            session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CUDAExecutionProvider','CPUExecutionProvider'], sess_options=options)
+        
+        # elif provider=="TensorrtExecutionProvider":
+        #     import onnxruntime
+        #     options = onnxruntime.SessionOptions()
+        #     session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['TensorrtExecutionProvider','CUDAExecutionProvider','CUDAExecutionProvider'], sess_options=options)
+
+        # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CPUExecutionProvider'], sess_options=options)
         self.session = session
         meta = session.get_modelmeta().custom_metadata_map  # metadata
         if 'stride' in meta:

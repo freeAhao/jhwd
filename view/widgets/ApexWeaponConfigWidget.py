@@ -45,10 +45,11 @@ class QWeaponConfig(QWidget):
 
         loading = QLineEdit()
         loadinggroup = self.lineedit_with_label("cpu负载",loading)
-
+        dq = QCheckBox("抖枪")
 
         grid.addWidget(weapondataprofilesgroup,0,0,1,2)
         grid.addWidget(loadinggroup,1,0,1,2)
+        grid.addWidget(dq)
         group.setLayout(grid)
         self.grid.addWidget(group,0,0)
 
@@ -63,8 +64,11 @@ class QWeaponConfig(QWidget):
         weaponmaxbulletEdit = QLineEdit()
         weaponmaxbullet = self.lineedit_with_label("最大弹药",weaponmaxbulletEdit)
 
-        weaponrateEdit = QLineEdit()
-        weaponrate  = self.lineedit_with_label("武器系数", weaponrateEdit)
+        weaponyrateEdit = QLineEdit()
+        weaponyrate  = self.lineedit_with_label("武器Y系数", weaponyrateEdit)
+
+        weaponxrateEdit = QLineEdit()
+        weaponxrate  = self.lineedit_with_label("武器X系数", weaponxrateEdit)
 
         weaponbaseEdit = QLineEdit()
         weaponbase  = self.lineedit_with_label("基础下压",  weaponbaseEdit)
@@ -93,10 +97,11 @@ class QWeaponConfig(QWidget):
         weaponconfiggroup = QGroupBox()
         weaponconfiggrid = QGridLayout()
         weaponconfiggrid.addWidget(weaponspeed,1,0)
-        weaponconfiggrid.addWidget(weaponrate,1,1)
-        weaponconfiggrid.addWidget(weaponbase,1,2)
-        weaponconfiggrid.addWidget(weaponmaxbullet,1,3)
-        weaponconfiggrid.addWidget(weaponsingle,1,4)
+        weaponconfiggrid.addWidget(weaponyrate,1,1)
+        weaponconfiggrid.addWidget(weaponxrate,1,2)
+        weaponconfiggrid.addWidget(weaponbase,1,3)
+        weaponconfiggrid.addWidget(weaponmaxbullet,1,4)
+        weaponconfiggrid.addWidget(weaponsingle,1,5)
 
         weaponconfiggroup.setLayout(weaponconfiggrid)
 
@@ -116,9 +121,11 @@ class QWeaponConfig(QWidget):
 
         self.weapondataprofiles = weapondataprofiles
         self.loading = loading
+        self.dq = dq
         self.weapons = weapons
         self.speed = weaponspeedEdit
-        self.rate = weaponrateEdit
+        self.yrate = weaponyrateEdit
+        self.xrate = weaponxrateEdit
         self.base = weaponbaseEdit
         self.maxbullet = weaponmaxbulletEdit
         self.single = weaponsingleEdit

@@ -4,7 +4,7 @@
         "adsmode": "HOLD",
         "aimbutton": 4,
         "autorecognize": true,
-        "debug": false,
+        "debug": true,
         "weapon": "none",
         "scope": 1,
         "pose": 1,

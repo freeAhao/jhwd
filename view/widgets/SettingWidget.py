@@ -14,7 +14,7 @@ from myutils.IMGutil import  get_screen_nums
 from myutils.QtUtils import  apprestart, message_critical
 from view.widgets.AIWidget import QAiFix,QBloodFix
 from view.widgets.PubgAutoRecognizer import PubgAutoRecognizer
-from view.widgets.PubgRecoilAnalyzeWidget import ImageRecoilAnalyze2
+from view.widgets.RecoilAnalyzeWidget import ImageRecoilAnalyze
 from controller.PubgMacroConfigController import MacroConfigController as PubgMacroConfigController
 from controller.PubgWeaponConfigController import WeaponConfigController as PubgWeaponConfigController
 from view.widgets.ApexAutoRecognizer import ApexAutoRecognizer
@@ -383,7 +383,7 @@ class QGameSettingWidget(QWidget):
                 ai = QAiFix()
                 macro = PubgMacroConfigController().view
                 weapon = PubgWeaponConfigController().view
-                recoil = ImageRecoilAnalyze2()
+                recoil = ImageRecoilAnalyze()
 
                 tab.addTab(recognizer,"自动识别")
                 tab.addTab(bloodfix,"血雾")
@@ -402,7 +402,7 @@ class QGameSettingWidget(QWidget):
                 ai = QAiFix()
                 macro = ApexMacroConfigController().view
                 weapon = ApexWeaponConfigController().view
-                recoil = ImageRecoilAnalyze2()
+                recoil = ImageRecoilAnalyze()
                 tab.addTab(recognizer,"自动识别")
                 tab.addTab(bloodfix,"血雾")
                 tab.addTab(ai,"AI")

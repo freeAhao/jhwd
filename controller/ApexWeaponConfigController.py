@@ -11,6 +11,7 @@ class WeaponConfigController():
 
     datas = {
         "loading": 0,
+        "dq": ["true"],
         "weapons":{}
     }
 
@@ -43,9 +44,11 @@ class WeaponConfigController():
         self.view.delButton.clicked.connect(self.delteweapon)
 
         self.view.loading.textChanged.connect(self.updateRate)
+        self.view.dq.stateChanged.connect(self.updateRate)
 
         self.view.speed.textChanged.connect(self.updatedata)
-        self.view.rate.textChanged.connect(self.updatedata)
+        self.view.xrate.textChanged.connect(self.updatedata)
+        self.view.yrate.textChanged.connect(self.updatedata)
         self.view.base.textChanged.connect(self.updatedata)
         self.view.maxbullet.textChanged.connect(self.updatedata)
         self.view.single.stateChanged.connect(self.updatedata)
@@ -57,6 +60,7 @@ class WeaponConfigController():
             texts = f.readlines()
         self.datas = {
             "loading": 0,
+            "dq": ["true"],
             "weapons": {}
         }
 
@@ -84,9 +88,12 @@ class WeaponConfigController():
                 elif f.find("speed")>=0:
                     speed = int(f.split("=")[-1].split(",")[0].strip())
                     self.datas["weapons"][weapon_name]["speed"] = speed
-                elif f.find("limit")>=0:
-                    limit = float(f.split("=")[-1].split(",")[0].strip())
-                    self.datas["weapons"][weapon_name]["limit"] = limit
+                elif f.find("xrate")>=0:
+                    rate = float(f.split("=")[-1].split(",")[0].strip())
+                    self.datas["weapons"][weapon_name]["xrate"] = rate
+                elif f.find("yrate")>=0:
+                    rate = float(f.split("=")[-1].split(",")[0].strip())
+                    self.datas["weapons"][weapon_name]["yrate"] = rate
                 elif f.find("base")>=0:
                     base = float(f.split("=")[-1].split(",")[0].strip())
                     self.datas["weapons"][weapon_name]["base"] = base 
@@ -122,8 +129,10 @@ class WeaponConfigController():
 
     def block_ui_event(self,block:bool):
         for widget in [self.view.loading,
+                       self.view.dq,
                        self.view.speed,
-                       self.view.rate,
+                       self.view.yrate,
+                       self.view.xrate,
                        self.view.maxbullet,
                        self.view.base,
                        self.view.single,
@@ -135,7 +144,8 @@ class WeaponConfigController():
         try:
             maxbullet = int(self.view.maxbullet.text())
             base = float(self.view.base.text())
-            rate = float(self.view.rate.text())
+            xrate = float(self.view.xrate.text())
+            yrate = float(self.view.yrate.text())
             datas = self.view.weapondata.toPlainText().replace("{","").replace("},","").replace("}","").split("\n")
             datas_result = {}
             keys_sorted = []
@@ -144,7 +154,7 @@ class WeaponConfigController():
                     continue
                 dsplit = d.split(",")
                 keys_sorted.append(int(dsplit[0]))
-                datas_result[int(dsplit[0])] = [int(dsplit[1]), int(dsplit[2])]
+                datas_result[int(dsplit[0])] = [float(dsplit[1]), float(dsplit[2])]
             keys_sorted.sort()
 
             self.view.weapon_data_result.setText("这里显示最终结果")
@@ -163,15 +173,15 @@ class WeaponConfigController():
                         offsetx = datas_result[key][1]
                         break
 
-                movex = round((offsetx) * rate)
-                movey = round((base + offsety) * rate)
+                movex = (offsetx) * xrate
+                movey = (base + offsety) * yrate
 
                 countx = countx + movex
                 county = county + movey
 
-                countdatax.append(countx)
-                countdatay.append(county)
-                self.view.weapon_data_result.append(f"{{{i},{movey},0}}")
+                countdatax.append("{:.2f}".format(countx))
+                countdatay.append("{:.2f}".format(county))
+                # self.view.weapon_data_result.append(f"{{{i},{movey},0}}")
 
             countdatax = str(countdatax).replace("[","{").replace("]","}")
             countdatay = str(countdatay).replace("[","{").replace("]","}")
@@ -182,26 +192,30 @@ class WeaponConfigController():
             self.datas["weapons"][weapon_name]["countdatay"] = countdatay
 
         except:
+            traceback.print_exc()
             self.view.weapon_data_result.setText("")
+        self.apply()
 
     def fill_ui_data(self):
         self.block_ui_event(True)
         self.view.loading.setText(self.datas["loading"][0])
+        self.view.dq.setChecked(self.datas["dq"][0]=="true")
 
         weapon = self.view.weapons.currentText()
 
         if not weapon in self.datas["weapons"].keys():
             self.view.speed.setText("")
-            self.view.rate.setText("")
+            self.view.yrate.setText("")
+            self.view.xrate.setText("")
             self.view.base.setText("")
             self.view.maxbullet.setText("")
             self.view.weapondata.setText("")
             self.block_ui_event(False)
             return
-
         weapon = self.datas["weapons"][weapon]
         self.view.speed.setText(str(weapon["speed"]))
-        self.view.rate.setText(str(weapon["limit"]))
+        self.view.yrate.setText(str(weapon["yrate"]))
+        self.view.xrate.setText(str(weapon["xrate"]))
         self.view.base.setText(str(weapon["base"]))
         self.view.maxbullet.setText(str(weapon["max"]))
 
@@ -215,11 +229,9 @@ class WeaponConfigController():
         for d in datas:
             datatext += "{" + d + "},\n"
         self.view.weapondata.setText(datatext)
-
         self.cal_data_result()
 
         self.block_ui_event(False)
-
 
     def delteweapon(self):
         weapon_name = self.view.weapons.currentText()
@@ -228,17 +240,21 @@ class WeaponConfigController():
 
     def apply(self):
         result = ""
-
         for key in self.datas:
             if key == "weapons":
                 continue
+            if key == "dq":
+                result += "{}={{{}}}\n\n".format(key,str(self.datas[key][0]).lower())
+                continue
+
             result += "{}={{{}}}\n\n".format(key,",".join(self.datas[key]))
 
         for key in self.datas["weapons"]:
             weapon = self.datas["weapons"][key]
             result += "table[\"{}\"]={{\n".format(key)
             result += "speed={},\n".format(weapon["speed"])
-            result += "limit={},\n".format(weapon["limit"])
+            result += "yrate={},\n".format(weapon["yrate"])
+            result += "xrate={},\n".format(weapon["xrate"])
             result += "base={},\n".format(weapon["base"])
             result += "max={},\n".format(weapon["max"])
             result += "single={},\n".format("true" if "single" in weapon and weapon["single"] else "false")
@@ -266,10 +282,14 @@ class WeaponConfigController():
             self.view.loading.setFocus()
             return
 
+        try:
+            self.datas["dq"] = [self.view.dq.isChecked()]
+        except Exception as e:
+            return
 
     def updatedata(self):
         weapon_name = self.view.weapons.currentText()
-        if not(self.view.speed.text() and self.view.rate.text() and self.view.base.text() and self.view.maxbullet.text()):
+        if not(self.view.speed.text() and self.view.xrate.text() and self.view.yrate.text() and self.view.base.text() and self.view.maxbullet.text()):
             return
 
         if not weapon_name in self.datas["weapons"].keys():
@@ -285,9 +305,16 @@ class WeaponConfigController():
             return
 
         try:
-            weapon["limit"] = float(self.view.rate.text())
+            weapon["yrate"] = float(self.view.yrate.text())
         except:
-            self.view.rate.setText("")
+            self.view.yrate.setText("")
+            # self.weaponrate.setFocus()
+            return
+
+        try:
+            weapon["xrate"] = float(self.view.xrate.text())
+        except:
+            self.view.xrate.setText("")
             # self.weaponrate.setFocus()
             return
 

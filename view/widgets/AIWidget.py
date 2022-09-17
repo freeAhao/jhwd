@@ -4,7 +4,7 @@ from myutils.QtUtils import set_label_img,qimg_to_qpix
 from controller.AiController import AIRecognizeController,BloodRecognizeController
 
 
-from PyQt6.QtWidgets import QWidget, QLabel, QGridLayout, QCheckBox,QSlider,QGroupBox,QLineEdit,QPushButton,QRadioButton
+from PyQt6.QtWidgets import QWidget, QLabel, QGridLayout, QCheckBox,QSlider,QGroupBox,QLineEdit,QPushButton,QRadioButton,QComboBox
 from PyQt6.QtCore import Qt
 from superqt.sliders import QLabeledRangeSlider,QLabeledDoubleSlider
 
@@ -73,21 +73,28 @@ class QAiFix(QRecognizer):
 
         grid =QGridLayout()
 
-        ordmlBTN = QRadioButton("onnxruntime DirectML (AMD-GPU)") #onnxruntime dml (GPU)
-        ordmlBTN.setChecked(True)
-        ovinoBTN = QRadioButton("OpenVINO (CPU)") #openvino (CPU)
-        ptorchBTN = QRadioButton("PyTorch (CPU/CUDA)") #pytorch
-        tensortBTN = QRadioButton("TensortRT (CUDA)") #pytorch
+        providerBox = QComboBox()
+        providerBox.addItem("CPUExecutionProvider","CPUExecutionProvider")
+        providerBox.addItem("DmlExecutionProvider","DmlExecutionProvider")
+        providerBox.addItem("CUDAExecutionProvider","CUDAExecutionProvider")
+        # providerBox.addItem("TensorrtExecutionProvider","TensorrtExecutionProvider")
+        self.providerBox = providerBox
+        # ordmlBTN = QRadioButton("onnxruntime DirectML (AMD-GPU)") #onnxruntime dml (GPU)
+        # ordmlBTN.setChecked(True)
+        # ovinoBTN = QRadioButton("OpenVINO (CPU)") #openvino (CPU)
+        # ptorchBTN = QRadioButton("PyTorch (CPU/CUDA)") #pytorch
+        # tensortBTN = QRadioButton("TensorRT (NVIDIA CUDA)") #pytorch
 
-        self.ordmlBTN = ordmlBTN 
-        self.ovinoBTN = ovinoBTN 
-        self.ptorchBTN = ptorchBTN
-        self.tensortBTN = tensortBTN
+        # self.ordmlBTN = ordmlBTN 
+        # self.ovinoBTN = ovinoBTN 
+        # self.ptorchBTN = ptorchBTN
+        # self.tensortBTN = tensortBTN
 
-        grid.addWidget(ordmlBTN, 0,0)
-        grid.addWidget(ovinoBTN, 0,1)
+        grid.addWidget(providerBox)
+        # grid.addWidget(ordmlBTN, 0,0)
+        # grid.addWidget(ovinoBTN, 0,1)
         # grid.addWidget(ptorchBTN, 1,0)
-        # grid.addWidget(tensortBTN, 1,1)
+        # grid.addWidget(tensortBTN, 0,2)
 
         enginegroup.setLayout(grid)
 
@@ -110,9 +117,25 @@ class QAiFix(QRecognizer):
         grid.addWidget(fixregion,1,0)
         regiongroup.setLayout(grid)
 
+        #置信度设置
+        thresholdgroup = QGroupBox("SCORE/NMS/CONFIDENCE THRESHOLD")
+        grid =QGridLayout()
+        ai_SCORE_THRESHOLD     = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
+        ai_NMS_THRESHOLD       = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
+        ai_CONFIDENCE_THRESHOLD= QLabeledDoubleSlider(Qt.Orientation.Horizontal)
+        self.ai_SCORE_THRESHOLD= ai_SCORE_THRESHOLD
+        self.ai_NMS_THRESHOLD  = ai_NMS_THRESHOLD
+        self.ai_CONFIDENCE_THRESHOLD = ai_CONFIDENCE_THRESHOLD
+        for slider in [ai_SCORE_THRESHOLD,ai_NMS_THRESHOLD,ai_CONFIDENCE_THRESHOLD]:
+            slider.setMaximum(1)
+            slider.setMinimum(0)
+            slider.setValue(0.4)
+        grid.addWidget(ai_SCORE_THRESHOLD)
+        grid.addWidget(ai_NMS_THRESHOLD)
+        grid.addWidget(ai_CONFIDENCE_THRESHOLD)
+        thresholdgroup.setLayout(grid)
 
         grid =QGridLayout()
-
 
         # self.c = Communicate()
         # self.c.updateFPS.connect(self.updateFPS)
@@ -125,13 +148,14 @@ class QAiFix(QRecognizer):
         # self.recoginizer.start.emit(False)
         # thread.start()
 
-        grid.addWidget(imgLabel,0,0)
-        grid.addWidget(moveLabel,1,0)
-        grid.addWidget(enginegroup,2,0)
-        grid.addWidget(group,3,0)
-        grid.addWidget(regiongroup,4,0)
-        grid.addWidget(fpsLabel,5,0)
-        grid.addWidget(startBtn,5,1)
+        grid.addWidget(imgLabel)
+        grid.addWidget(moveLabel)
+        grid.addWidget(enginegroup)
+        grid.addWidget(group)
+        grid.addWidget(regiongroup)
+        grid.addWidget(thresholdgroup)
+        grid.addWidget(fpsLabel)
+        grid.addWidget(startBtn)
 
         self.setLayout(grid)
 

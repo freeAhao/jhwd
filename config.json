@@ -1,7 +1,8 @@
 {
     "monitor": "2",
-    "game": "PUBG",
+    "game": "APEX",
     "commit1": "",
     "commit2": "",
-    "update": "GITHUB"
+    "update": "GITHUB",
+    "ai": "DmlExecutionProvider"
 }
