@@ -12,6 +12,8 @@ class WeaponConfigController():
     datas = {
         "loading": 0,
         "dq": ["true"],
+        "dqrate": 2,
+        "debug": ["false"],
         "weapons":{}
     }
 
@@ -45,6 +47,8 @@ class WeaponConfigController():
 
         self.view.loading.textChanged.connect(self.updateRate)
         self.view.dq.stateChanged.connect(self.updateRate)
+        self.view.dqrate.textChanged.connect(self.updateRate)
+        self.view.debug.stateChanged.connect(self.updateRate)
 
         self.view.speed.textChanged.connect(self.updatedata)
         self.view.xrate.textChanged.connect(self.updatedata)
@@ -61,6 +65,8 @@ class WeaponConfigController():
         self.datas = {
             "loading": 0,
             "dq": ["true"],
+            "dqrate": 2,
+            "debug": ["false"],
             "weapons": {}
         }
 
@@ -199,6 +205,7 @@ class WeaponConfigController():
     def fill_ui_data(self):
         self.block_ui_event(True)
         self.view.loading.setText(self.datas["loading"][0])
+        self.view.debug.setChecked(self.datas["debug"][0]=="true")
         self.view.dq.setChecked(self.datas["dq"][0]=="true")
 
         weapon = self.view.weapons.currentText()
@@ -243,8 +250,11 @@ class WeaponConfigController():
         for key in self.datas:
             if key == "weapons":
                 continue
-            if key == "dq":
+            if key in ["dq","debug"]:
                 result += "{}={{{}}}\n\n".format(key,str(self.datas[key][0]).lower())
+                continue
+            if key in ["dqrate"]:
+                result += "{}={{{}}}\n\n".format(key,self.datas[key][0])
                 continue
 
             result += "{}={{{}}}\n\n".format(key,",".join(self.datas[key]))
@@ -286,6 +296,19 @@ class WeaponConfigController():
             self.datas["dq"] = [self.view.dq.isChecked()]
         except Exception as e:
             return
+
+        try:
+            self.datas["dqrate"] = [str(int(self.view.dqrate.text()))]
+        except Exception as e:
+            self.view.dqrate.setText("2")
+            self.view.dqrate.setFocus()
+            return
+
+        try:
+            self.datas["debug"] = [self.view.debug.isChecked()]
+        except Exception as e:
+            return
+        self.apply()
 
     def updatedata(self):
         weapon_name = self.view.weapons.currentText()

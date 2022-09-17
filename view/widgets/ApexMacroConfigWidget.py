@@ -15,7 +15,7 @@ class QMacroConfigWidget(QWidget):
 
         self.setLayout(self.grid)
         self.aimModeUI()
-        self.otherUI()
+        # self.otherUI()
         self.keybindUI()
 
 #====================================================================
@@ -78,32 +78,12 @@ class QMacroConfigWidget(QWidget):
         for i in ["10","20","30","40","50"]:
             loading.addItem(i)
 
-        debug = QCheckBox("Debug弹道调试")
 
-        defaultpose = QComboBox()
-        defaultpose.setIconSize(QSize(40,40))
-
-
-        defaultScope = QComboBox()
-        defaultScope.setIconSize(QSize(40,40))
-
-        defaultAttachment2 = QComboBox()
-        defaultAttachment2.setIconSize(QSize(40,40))
-
-        defaultAttachment3 = QComboBox()
-        defaultAttachment3.setIconSize(QSize(40,40))
-
-        grid.addWidget(debug,0,0)
 
         group.setLayout(grid)
         self.grid.addWidget(group,1,0)
 
         self.loading = loading
-        self.debug = debug
-        self.defaultpose = defaultpose
-        self.defaultScope = defaultScope
-        self.defaultAttachment2 = defaultAttachment2
-        self.defaultAttachment3 = defaultAttachment3
         
 #====================================================================
 

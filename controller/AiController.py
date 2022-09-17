@@ -313,9 +313,9 @@ class BloodRecoginzer(Recognizer):
 
     def recognize(self):
         box = (round(self.resolution[0]/2 - round(40/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(80/1080*self.resolution[1])),
+               round(self.resolution[1]/2 - round(40/1080*self.resolution[1])),
                round(self.resolution[0]/2 + round(40/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(80/1080*self.resolution[1])))
+               round(self.resolution[1]/2 + round(40/1080*self.resolution[1])))
         width = (box[2]-box[0])
         height = (box[3]-box[1])
         center = (int((width/2)),int((height/2)))

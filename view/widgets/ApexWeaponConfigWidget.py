@@ -43,13 +43,20 @@ class QWeaponConfig(QWidget):
         weapondataprofiles = QComboBox()
         weapondataprofilesgroup = self.lineedit_with_label("预设弹道",weapondataprofiles)
 
+        debug = QCheckBox("debug弹道调试")
+
         loading = QLineEdit()
         loadinggroup = self.lineedit_with_label("cpu负载",loading)
         dq = QCheckBox("抖枪")
+        dqrate = QLineEdit("2")
+        dqrategroup = self.lineedit_with_label("抖枪强度",dqrate)
+
 
         grid.addWidget(weapondataprofilesgroup,0,0,1,2)
         grid.addWidget(loadinggroup,1,0,1,2)
-        grid.addWidget(dq)
+        grid.addWidget(debug,2,0)
+        grid.addWidget(dq,3,0)
+        grid.addWidget(dqrategroup,3,1)
         group.setLayout(grid)
         self.grid.addWidget(group,0,0)
 
@@ -121,7 +128,9 @@ class QWeaponConfig(QWidget):
 
         self.weapondataprofiles = weapondataprofiles
         self.loading = loading
+        self.debug = debug
         self.dq = dq
+        self.dqrate = dqrate
         self.weapons = weapons
         self.speed = weaponspeedEdit
         self.yrate = weaponyrateEdit
