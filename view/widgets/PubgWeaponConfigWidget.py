@@ -67,7 +67,7 @@ class QWeaponConfig(QWidget):
         weaponmaxbullet = self.lineedit_with_label("最大弹药",weaponmaxbulletEdit)
 
         weaponrateEdit = QLineEdit()
-        weaponrate  = self.lineedit_with_label("武器系数", weaponrateEdit)
+        weaponrate  = self.lineedit_with_label("武器Y系数", weaponrateEdit)
 
         weaponbaseEdit = QLineEdit()
         weaponbase  = self.lineedit_with_label("基础下压",  weaponbaseEdit)

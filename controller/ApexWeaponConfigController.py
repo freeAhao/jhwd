@@ -1,8 +1,11 @@
 import os
+from turtle import width
+import numpy as np
+import cv2
 import tempfile
 import traceback
 from model.Settings import Settings
-from myutils.QtUtils import message_critical
+from myutils.QtUtils import message_critical, set_label_img
 
 from view.widgets.ApexWeaponConfigWidget import QWeaponConfig
 
@@ -54,7 +57,6 @@ class WeaponConfigController():
         self.view.xrate.textChanged.connect(self.updatedata)
         self.view.yrate.textChanged.connect(self.updatedata)
         self.view.base.textChanged.connect(self.updatedata)
-        self.view.maxbullet.textChanged.connect(self.updatedata)
         self.view.single.stateChanged.connect(self.updatedata)
         self.view.weapondata.textChanged.connect(self.updatedata)
 
@@ -103,9 +105,6 @@ class WeaponConfigController():
                 elif f.find("base")>=0:
                     base = float(f.split("=")[-1].split(",")[0].strip())
                     self.datas["weapons"][weapon_name]["base"] = base 
-                elif f.find("max")>=0:
-                    max = int(f.split("=")[-1].split(",")[0].strip())
-                    self.datas["weapons"][weapon_name]["max"] = max
                 elif f.find("countdatax")>=0:
                     leftquote = f.find("{")
                     rightquote = f.find("}")
@@ -124,7 +123,7 @@ class WeaponConfigController():
                 elif f.find("single")>=0: 
                     self.datas["weapons"][weapon_name]["single"] = f.find("true") > 0
         except Exception as e:
-            print(traceback.print_exc())
+            traceback.print_exc()
             message_critical("错误", selectprofile+"配置异常:"+str(e))
             return
         self.fill_ui_data()
@@ -139,16 +138,35 @@ class WeaponConfigController():
                        self.view.speed,
                        self.view.yrate,
                        self.view.xrate,
-                       self.view.maxbullet,
                        self.view.base,
                        self.view.single,
                        self.view.weapondata
                        ]:
             widget.blockSignals(block)
-    
+
+    def render_recoil_pattern(self,weapon_name):
+        pass
+        # height = 200
+        # xdata = self.datas["weapons"][weapon_name]["countdatax"][1:-1].split(",")
+        # ydata = self.datas["weapons"][weapon_name]["countdatay"][1:-1].split(",")
+        # xdata = [round(float(x.replace("'","").strip())) for x in xdata]
+        # ydata = [round(float(y.replace("'","").strip())) for y in ydata]
+        # maxx = abs(sum(xdata))
+        # maxy = abs(sum(ydata))
+        # img = np.zeros([maxy*3,maxx*3,3],dtype=np.uint8)
+        # point = (round(maxx*3/2),round(maxy))
+        # for i,y in enumerate(ydata):
+        #     x = xdata[i]
+        #     if i != 0:
+        #         point = (point[0]+int(x),point[1]+int(y))
+        #     cv2.circle(img,point,radius=10,color=(0,255,0),thickness=-1)
+        # width=round(height/img.shape[0]*img.shape[1])
+        # img = cv2.resize(img,(width,height))
+        # set_label_img(self.view.weapon_data_result,img)
+
+
     def cal_data_result(self):
         try:
-            maxbullet = int(self.view.maxbullet.text())
             base = float(self.view.base.text())
             xrate = float(self.view.xrate.text())
             yrate = float(self.view.yrate.text())
@@ -163,7 +181,6 @@ class WeaponConfigController():
                 datas_result[int(dsplit[0])] = [float(dsplit[1]), float(dsplit[2])]
             keys_sorted.sort()
 
-            self.view.weapon_data_result.setText("这里显示最终结果")
             countx = 0
             county = 0
             countdatax = []
@@ -191,11 +208,12 @@ class WeaponConfigController():
 
             countdatax = str(countdatax).replace("[","{").replace("]","}")
             countdatay = str(countdatay).replace("[","{").replace("]","}")
-            self.view.weapon_data_result.append(countdatax)
-            self.view.weapon_data_result.append(countdatay)
+            # self.view.weapon_data_result.append(countdatax)
+            # self.view.weapon_data_result.append(countdatay)
             weapon_name = self.view.weapons.currentText()
             self.datas["weapons"][weapon_name]["countdatax"] = countdatax
             self.datas["weapons"][weapon_name]["countdatay"] = countdatay
+            # self.render_recoil_pattern(weapon_name)
 
         except:
             traceback.print_exc()
@@ -207,6 +225,7 @@ class WeaponConfigController():
         self.view.loading.setText(self.datas["loading"][0])
         self.view.debug.setChecked(self.datas["debug"][0]=="true")
         self.view.dq.setChecked(self.datas["dq"][0]=="true")
+        self.view.dqrate.setText(self.datas["dqrate"][0])
 
         weapon = self.view.weapons.currentText()
 
@@ -215,7 +234,6 @@ class WeaponConfigController():
             self.view.yrate.setText("")
             self.view.xrate.setText("")
             self.view.base.setText("")
-            self.view.maxbullet.setText("")
             self.view.weapondata.setText("")
             self.block_ui_event(False)
             return
@@ -224,7 +242,6 @@ class WeaponConfigController():
         self.view.yrate.setText(str(weapon["yrate"]))
         self.view.xrate.setText(str(weapon["xrate"]))
         self.view.base.setText(str(weapon["base"]))
-        self.view.maxbullet.setText(str(weapon["max"]))
 
         if "single" in weapon.keys():
             self.view.single.setChecked(weapon["single"])
@@ -266,7 +283,6 @@ class WeaponConfigController():
             result += "yrate={},\n".format(weapon["yrate"])
             result += "xrate={},\n".format(weapon["xrate"])
             result += "base={},\n".format(weapon["base"])
-            result += "max={},\n".format(weapon["max"])
             result += "single={},\n".format("true" if "single" in weapon and weapon["single"] else "false")
             result += "countdatax={},\n".format(weapon["countdatax"])
             result += "countdatay={},\n".format(weapon["countdatay"])
@@ -312,7 +328,7 @@ class WeaponConfigController():
 
     def updatedata(self):
         weapon_name = self.view.weapons.currentText()
-        if not(self.view.speed.text() and self.view.xrate.text() and self.view.yrate.text() and self.view.base.text() and self.view.maxbullet.text()):
+        if not(self.view.speed.text() and self.view.xrate.text() and self.view.yrate.text() and self.view.base.text()):
             return
 
         if not weapon_name in self.datas["weapons"].keys():
@@ -346,13 +362,6 @@ class WeaponConfigController():
         except:
             self.view.base.setText("")
             # self.weaponbase.setFocus()
-            return
-
-        try:
-            weapon["max"] = int(self.view.maxbullet.text())
-        except:
-            self.view.bullet.setText("")
-            # self.weaponmaxbullet.setFocus()
             return
 
         weapon["single"] = self.view.single.isChecked()

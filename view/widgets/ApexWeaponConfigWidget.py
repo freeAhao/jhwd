@@ -68,9 +68,6 @@ class QWeaponConfig(QWidget):
         weaponspeedEdit = QLineEdit()
         weaponspeed = self.lineedit_with_label("射速",weaponspeedEdit)
 
-        weaponmaxbulletEdit = QLineEdit()
-        weaponmaxbullet = self.lineedit_with_label("最大弹药",weaponmaxbulletEdit)
-
         weaponyrateEdit = QLineEdit()
         weaponyrate  = self.lineedit_with_label("武器Y系数", weaponyrateEdit)
 
@@ -85,7 +82,7 @@ class QWeaponConfig(QWidget):
 
 
         weapondata = QTextEdit()
-        weapon_data_result = QTextEdit()
+        weapon_data_result = QLabel()
 
 
 
@@ -107,8 +104,7 @@ class QWeaponConfig(QWidget):
         weaponconfiggrid.addWidget(weaponyrate,1,1)
         weaponconfiggrid.addWidget(weaponxrate,1,2)
         weaponconfiggrid.addWidget(weaponbase,1,3)
-        weaponconfiggrid.addWidget(weaponmaxbullet,1,4)
-        weaponconfiggrid.addWidget(weaponsingle,1,5)
+        weaponconfiggrid.addWidget(weaponsingle,1,4)
 
         weaponconfiggroup.setLayout(weaponconfiggrid)
 
@@ -136,7 +132,6 @@ class QWeaponConfig(QWidget):
         self.yrate = weaponyrateEdit
         self.xrate = weaponxrateEdit
         self.base = weaponbaseEdit
-        self.maxbullet = weaponmaxbulletEdit
         self.single = weaponsingleEdit
 
         self.weapondata = weapondata

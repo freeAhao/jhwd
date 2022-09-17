@@ -1,16 +1,4 @@
 {
-    "pause_recognize": [
-        "\n    vars[\"autorecognize\"] = false\n    OutputLogMessage(\"pause_recognize\\n\")\n        ",
-        null,
-        "\u5173\u95ed\u81ea\u52a8\u8bc6\u522b",
-        true
-    ],
-    "resume_recognize": [
-        "\n    vars[\"autorecognize\"] = true\n    OutputLogMessage(\"resume_recognize\\n\")\n        ",
-        "",
-        "\u5f00\u542f\u81ea\u52a8\u8bc6\u522b",
-        true
-    ],
     "reloadconfig": [
         "\n    OutputLogMessage(\"reloadconfig\\n\")\n    dofile(vars[\"config_file\"])\n    bindkeys(config,vars)\n        ",
         null,
@@ -24,7 +12,7 @@
         false
     ],
     "rightbutton": [
-        "\n    vars[\"right\"] = true\n    --start_time = GetRunningTime()\n    if vars[\"autorecognize\"] then\n        dofile(vars[\"autorecognize_file\"])\n        vars[\"weapon\"] = rweapon\n    end\n    -- \u5f00\u542f\u8c03\u8bd5\u6a21\u5f0f\u540e \u6309\u4e0b\u53f3\u952e\u5373\u53ef\u8bfb\u53d6\u65b0\u5f39\u9053\n    if debug then\n        dofile(vars[\"weapon_file\"])\n        OutputLogMessage(\"reload weapon data\\n\")\n    end\n\n    dorecoil(vars)\n        ",
+        "\n    vars[\"right\"] = true\n    --start_time = GetRunningTime()\n\n    dofile(vars[\"autorecognize_file\"])\n    vars[\"weapon\"] = rweapon\n\n    -- \u5f00\u542f\u8c03\u8bd5\u6a21\u5f0f\u540e \u6309\u4e0b\u53f3\u952e\u5373\u53ef\u8bfb\u53d6\u65b0\u5f39\u9053\n    if debug then\n        dofile(vars[\"weapon_file\"])\n        OutputLogMessage(\"reload weapon data\\n\")\n    end\n\n    dorecoil(vars)\n        ",
         "\n    vars[\"right\"] = false\n",
         "",
         false

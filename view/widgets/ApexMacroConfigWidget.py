@@ -19,14 +19,6 @@ class QMacroConfigWidget(QWidget):
         self.keybindUI()
 
 #====================================================================
-    def toggle_aimMode_display(self, show: bool):
-        if show:
-            self.aim.show()
-            self.adslabel.show()
-        else:
-            self.aim.hide()
-            self.adslabel.hide()
-    
     def save_file_dialog(self) -> str:
         path = os.path.expanduser("~/Desktop/")
         fname = QFileDialog.getSaveFileName(self,caption='保存文件',directory=path,filter="*.lua ; *.txt")
@@ -47,17 +39,12 @@ class QMacroConfigWidget(QWidget):
         modes = QComboBox()
 
 
-        adslabel = QLabel("瞄准/肩射键")
-        aim = QComboBox()
-
 
         grid.addWidget(driver_soft_label,0,0)
         grid.addWidget(driversoft,0,1)
         grid.addWidget(driver_script_download_btn,0,2)
         grid.addWidget(modeslabel,1,0)
         grid.addWidget(modes,1,1,1,2)
-        grid.addWidget(adslabel,2,0)
-        grid.addWidget(aim,2,1,1,2)
 
         group.setLayout(grid)
         self.grid.addWidget(group,0,0)
@@ -65,8 +52,6 @@ class QMacroConfigWidget(QWidget):
         self.driver_script_download_btn = driver_script_download_btn
         self.driversoft = driversoft
         self.modes = modes
-        self.aim = aim
-        self.adslabel = adslabel
 
 #====================================================================
 

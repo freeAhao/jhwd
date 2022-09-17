@@ -2,18 +2,8 @@
     "macro_config": {
         "driver": "LGS",
         "adsmode": "HOLD",
-        "aimbutton": 4,
-        "autorecognize": true,
-        "debug": true,
-        "weapon": "none",
-        "scope": 1,
-        "pose": 1,
-        "autoshift": true,
-        "autoshiftscope": 3,
-        "a2": 1,
-        "a3": 1,
         "keybinds": {
-            "lctrl,lshift,lalt+5": "reloadconfig"
+            "+5": "reloadconfig"
         }
     },
     "pose": {

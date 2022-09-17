@@ -2,6 +2,7 @@ import os
 import tempfile
 import json
 from enum import Enum
+import traceback
 from model.KeyBinding import KeyBinding
 from model.KeyBindingTableModel import KeyBindingTableModel
 from model.MacroFunction import MacroFunction
@@ -60,9 +61,6 @@ class MacroConfigController():
         for aimMode in AimMode:
             self.view.modes.addItem(aimMode.value, userData=aimMode)
 
-        for button in range(4,12):
-            self.view.aim.addItem(f"G{button}", userData=button)
-
         for index, modifier in enumerate(["lctrl","lshift","lalt","ralt","rctrl","rshit"]):
             self.view.add_modifier_key(modifier, index)
 
@@ -80,7 +78,6 @@ class MacroConfigController():
         self.view.driversoft.currentIndexChanged.connect(self.driver_changed)
         self.view.modes.currentIndexChanged.connect(lambda:self.mode_changed()) # bug 无法直接绑定
         self.view.driver_script_download_btn.clicked.connect(self.download_driverscript)
-        self.view.aim.currentIndexChanged.connect(self.aim_button_changed)
         
         for modifier_checkbox in self.view.modifier_checkboxs:
             modifier_checkbox.stateChanged.connect(self.update_edit_keybinding)
@@ -95,7 +92,6 @@ class MacroConfigController():
     def init_ui_with_config(self):
         self.view.driversoft.setCurrentIndex( self.view.driversoft.findData(MacroMode(self.config["driver"])) )
         self.view.modes.setCurrentIndex( self.view.modes.findData(AimMode(self.config["adsmode"])) )
-        self.view.aim.setCurrentIndex( self.view.aim.findData(self.config["aimbutton"]) )
         keyBindings = []
         for key in self.config["keybinds"]:
             modifiers = key.split("+")[0].split(",")
@@ -112,7 +108,6 @@ class MacroConfigController():
     def connect_ui_save_event_bind(self):
         self.view.driversoft.currentIndexChanged.connect(self.save_config)
         self.view.modes.currentIndexChanged.connect(self.save_config)
-        self.view.aim.currentIndexChanged.connect(self.save_config)
         
         for modifier_checkbox in self.view.modifier_checkboxs:
             modifier_checkbox.stateChanged.connect(self.save_config)
@@ -127,9 +122,6 @@ class MacroConfigController():
         keyBinding_data = self.tablemodel.data.copy()
         keyBinding_data.append(KeyBinding(1,self.macroFunctions["leftbutton"]))
         keyBinding_data.append(KeyBinding(2,self.macroFunctions["rightbutton"]))
-
-        if self.config["adsmode"] == AimMode.HOLD_MOUSE_BTN_2.value:
-            keyBinding_data.append(KeyBinding(self.config["aimbutton"],self.macroFunctions["aimbutton"]))
 
         ## render config.lua
         result = ""
@@ -167,7 +159,6 @@ class MacroConfigController():
 
         keys_with_modifiers.sort(key=lambda x:len(x.split(",")),reverse=True)
         keys_without_modifiers.extend(keys_with_modifiers)
-        print(keys_without_modifiers)
         result += "config[\"keys\"]={{ {} }}\n".format("\"" + "\",\"".join(keys_without_modifiers) + "\"")
         
 
@@ -197,21 +188,12 @@ class MacroConfigController():
 
         with open(self.config_files["config_file"],"w",encoding="UTF-8") as f:
             f.write(result)
-            print("config generated")
 
         self.config["keybinds"] = {}
         for keybind in self.tablemodel.data:
             self.config["keybinds"][keybind.get_key()] = keybind.func.name
 
         Settings().save_config_to_json()
-
-    # def save_config_to_json(self, configpath):
-    #     try:
-    #         with open(configpath, "w") as f:
-    #             json.dump(self.config,f,indent=4)
-    #         print("config saved")
-    #     except:
-    #         pass
 
     def load_configs(self,configpath):
         config = None
@@ -247,7 +229,7 @@ class MacroConfigController():
             try:
                 mainscript = self.macroFunctions["script"]
             except:
-                print("配置文件损坏")
+                traceback.print_exc()
                 return
             result = mainscript.openContent.format(
                 tempfile.tempdir.replace("\\", "/")+"/config.lua")
@@ -257,7 +239,7 @@ class MacroConfigController():
             try:
                 mainscript = self.macroFunctions["script"]
             except:
-                print("配置文件损坏")
+                traceback.print_exc()
                 return
             result = mainscript.openContent.format(
                 tempfile.tempdir.replace("\\", "/")+"/config.lua")
@@ -265,13 +247,7 @@ class MacroConfigController():
                 f.write(result)
 
     def mode_changed(self):
-        self.view.toggle_aimMode_display(False) if self.view.modes.currentData() == AimMode.CLICK_MOUSE_BTN_2 else self.view.toggle_aimMode_display(True)
         self.config["adsmode"] = self.view.modes.currentData().value
-        print(self.config["adsmode"])
-
-    def aim_button_changed(self):
-        self.config["aimbutton"]=self.view.aim.currentData()
-        print(self.config["aimbutton"])
 
     def keybinding_edit_ui_block_event(self,block:bool):
         for modifier_checkbox in self.view.modifier_checkboxs:
