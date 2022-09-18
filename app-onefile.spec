@@ -8,10 +8,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('D:\\pubg-macro\\venv39\\Lib\\site-packages\\openvino\\libs\\plugins.xml', '.'),
-    ('D:\\pubg-macro\\venv39\\Lib\\site-packages\\openvino\\libs\\openvino_ir_frontend.dll', '.'),
-    ('D:\\pubg-macro\\venv39\\Lib\\site-packages\\openvino\\libs\\openvino_intel_cpu_plugin.dll', '.')
-    ],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

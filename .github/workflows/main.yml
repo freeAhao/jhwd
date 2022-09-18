@@ -21,3 +21,6 @@ jobs:
 
     - name: Build
       run: pyinstaller app-onefile.spec
+
+    - name: show
+      run: dir

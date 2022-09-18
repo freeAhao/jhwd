@@ -5,7 +5,6 @@ import numpy as np
 import cv2
 from time import time
 import pip
-import onnxruntime
 
 from model.Settings import Settings
 
@@ -172,6 +171,10 @@ class ORDML(AI):
         # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CUDAExecutionProvider'], sess_options=options)
 
         # DirectML
+        try:
+            import onnxruntime
+        except:
+            raise Exception("onnxruntime not found")
 
         if provider=="DmlExecutionProvider":
             # self.install(provider)
