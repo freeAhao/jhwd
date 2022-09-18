@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - actiontest
+    tags:
+      - v*
 
 jobs:
   build-and-deploy:
