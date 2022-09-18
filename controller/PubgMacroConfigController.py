@@ -87,7 +87,6 @@ class MacroConfigController():
         self.view.modes.currentIndexChanged.connect(lambda:self.mode_changed()) # bug 无法直接绑定
         self.view.driver_script_download_btn.clicked.connect(self.download_driverscript)
         self.view.aim.currentIndexChanged.connect(self.aim_button_changed)
-        self.view.debug.stateChanged.connect(self.debug_state_changed)
         # self.view.autorecognize.stateChanged.connect(self.autorecognize_state_changed)
         self.view.autoshift.stateChanged.connect(self.autoshift_state_changed)
         self.view.autoshiftscope.currentIndexChanged.connect(self.autoshiftscope_changed)
@@ -106,7 +105,6 @@ class MacroConfigController():
         self.view.driversoft.setCurrentIndex( self.view.driversoft.findData(MacroMode(self.config["driver"])) )
         self.view.modes.setCurrentIndex( self.view.modes.findData(AimMode(self.config["adsmode"])) )
         self.view.aim.setCurrentIndex( self.view.aim.findData(self.config["aimbutton"]) )
-        self.view.debug.setChecked( self.config["debug"] )
         # self.view.autorecognize.setChecked( self.config["autorecognize"] )
         self.view.autoshift.setChecked( self.config["autoshift"] )
         self.view.autoshiftscope.setCurrentIndex( self.view.autoshiftscope.findData(self.config["autoshiftscope"]) )
@@ -127,7 +125,6 @@ class MacroConfigController():
         self.view.driversoft.currentIndexChanged.connect(self.save_config)
         self.view.modes.currentIndexChanged.connect(self.save_config)
         self.view.aim.currentIndexChanged.connect(self.save_config)
-        self.view.debug.stateChanged.connect(self.save_config)
         # self.view.autorecognize.stateChanged.connect(self.save_config)
         self.view.autoshift.stateChanged.connect(self.save_config)
         self.view.autoshiftscope.currentIndexChanged.connect(self.save_config)
@@ -292,10 +289,6 @@ class MacroConfigController():
         self.config["aimbutton"]=self.view.aim.currentData()
         print(self.config["aimbutton"])
 
-    def debug_state_changed(self):
-        self.config["debug"]=self.view.debug.isChecked()
-        print(self.config["debug"])
-    
     # def autorecognize_state_changed(self):
     #     self.config["autorecognize"]=self.view.autorecognize.isChecked()
     #     print(self.config["autorecognize"])

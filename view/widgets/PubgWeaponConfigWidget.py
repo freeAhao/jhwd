@@ -49,9 +49,12 @@ class QWeaponConfig(QWidget):
         sensitivity = QLineEdit("1")
         sensitivitygroup = self.lineedit_with_label("灵敏度系数",sensitivity)
 
+        debug = QCheckBox("debug弹道调试")
+
         grid.addWidget(weapondataprofilesgroup,0,0,1,2)
         grid.addWidget(loadinggroup,1,0,1,2)
         grid.addWidget(sensitivitygroup,2,0,1,2)
+        grid.addWidget(debug,3,0,1,2)
         group.setLayout(grid)
         self.grid.addWidget(group,0,0)
 
@@ -146,6 +149,7 @@ class QWeaponConfig(QWidget):
         self.weapondataprofiles = weapondataprofiles
         self.loading = loading
         self.sensitivityrate = sensitivity
+        self.debug = debug
         self.weapons = weapons
         self.speed = weaponspeedEdit
         self.rate = weaponrateEdit

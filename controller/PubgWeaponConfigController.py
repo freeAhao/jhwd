@@ -12,6 +12,7 @@ class WeaponConfigController():
     datas = {
         "loading": 10,
         "sensitivityrate": 1.0,
+        "debug": ["false"],
         "weapons":{}
     }
 
@@ -49,6 +50,7 @@ class WeaponConfigController():
 
         self.view.loading.textChanged.connect(self.updateRate)
         self.view.sensitivityrate.textChanged.connect(self.updateRate)
+        self.view.debug.stateChanged.connect(self.updateRate)
 
         self.view.speed.textChanged.connect(self.updatedata)
         self.view.rate.textChanged.connect(self.updatedata)
@@ -87,6 +89,7 @@ class WeaponConfigController():
         self.datas = {
             "loading": 10,
             "sensitivityrate": 1.0,
+            "debug": ["false"],
             "weapons": {}
         }
 
@@ -239,11 +242,13 @@ class WeaponConfigController():
             self.datas["weapons"][weapon_name]["countdatay"] = countdatay
         except:
             self.view.weapon_data_result.setText("")
+        self.apply()
 
     def fill_ui_data(self):
         self.block_ui_event(True)
         self.view.loading.setText(self.datas["loading"][0])
         self.view.sensitivityrate.setText(self.datas["sensitivityrate"][0])
+        self.view.debug.setChecked(self.datas["debug"][0]=="true")
 
         weapon = self.view.weapons.currentText()
 
@@ -305,6 +310,9 @@ class WeaponConfigController():
         for key in self.datas:
             if key == "weapons":
                 continue
+            if key in ["debug"]:
+                result += "{}={{{}}}\n\n".format(key,str(self.datas[key][0]).lower())
+                continue
             result += "{}={{{}}}\n\n".format(key,",".join(self.datas[key]))
 
         for key in self.datas["weapons"]:
@@ -352,6 +360,12 @@ class WeaponConfigController():
             self.view.sensitivityrate.setText("1.0")
             self.view.sensitivityrate.setFocus()
             return
+
+        try:
+            self.datas["debug"] = [self.view.debug.isChecked()]
+        except Exception as e:
+            return
+        self.apply()
 
 
     def updatedata(self):

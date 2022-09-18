@@ -2,6 +2,8 @@ loading={9}
 
 sensitivityrate={1.0}
 
+debug={true}
+
 table["none"]={
 pose_sensitive={1.0,1.3,0.75},
 scope_sensitive={1.0,1,1.7,2.7,3.8,6,6,7},

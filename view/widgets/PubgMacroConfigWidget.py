@@ -89,10 +89,6 @@ class QMacroConfig(QWidget):
         for i in ["10","20","30","40","50"]:
             loading.addItem(i)
 
-        debug = QCheckBox("Debug弹道调试")
-
-        # autorecognize = QCheckBox("自动识别")
-
         autoshift = QCheckBox("开镜自动屏息")
         autoshiftscope = QComboBox()
         autoshiftscope.setIconSize(QSize(40,40))
@@ -111,17 +107,14 @@ class QMacroConfig(QWidget):
         defaultAttachment3 = QComboBox()
         defaultAttachment3.setIconSize(QSize(40,40))
 
-        grid.addWidget(debug,0,0)
-        # grid.addWidget(autorecognize,1,0)
-        grid.addWidget(autoshift,2,0)
-        grid.addWidget(autoshiftscope,2,1)
+        grid.addWidget(autoshift,0,0)
+        grid.addWidget(autoshiftscope,0,1)
 
 
         group.setLayout(grid)
         self.grid.addWidget(group,1,0)
 
         self.loading = loading
-        self.debug = debug
         # self.autorecognize = autorecognize
         self.autoshift = autoshift
         self.autoshiftscope = autoshiftscope
