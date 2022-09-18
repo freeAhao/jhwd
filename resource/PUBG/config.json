@@ -1,6 +1,6 @@
 {
     "macro_config": {
-        "driver": "GHUB",
+        "driver": "LGS",
         "adsmode": "HOLD",
         "aimbutton": 4,
         "debug": false,

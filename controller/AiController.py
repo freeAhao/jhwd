@@ -393,3 +393,110 @@ class BloodRecognizeController(RecognizeController):
         self.recoginizer.h = h
         self.recoginizer.s = s
         self.recoginizer.v = v 
+
+class AntiShakeRecoginzer(Recognizer):
+
+    xrate = 1
+    yrate = 0
+    prevImg = None
+    tracks = []
+    track_len = 2
+    lk_params = dict( winSize  = (15, 15), 
+                  maxLevel = 2, 
+                  criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))    
+ 
+    feature_params = dict( maxCorners = 500, 
+                        qualityLevel = 0.3,
+                        minDistance = 7,
+                        blockSize = 7 )
+
+    def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0):
+        super().__init__(qt_comunicate, sleeptime,accuracy)
+
+    def recognize(self):
+        box = (round(self.resolution[0]/2 - round(80/1920*self.resolution[0])),
+               round(self.resolution[1]/2 - round(80/1080*self.resolution[1])),
+               round(self.resolution[0]/2 + round(80/1920*self.resolution[0])),
+               round(self.resolution[1]/2 + round(80/1080*self.resolution[1])))
+        width = (box[2]-box[0])
+        height = (box[3]-box[1])
+        center = (int((width/2)),int((height/2)))
+
+        img = screenshot(box)
+        cvimg = screenshot_to_cv(img)
+        cvimg_gray = cv.cvtColor(cvimg, cv.COLOR_BGR2GRAY)
+        mask = np.zeros_like(cvimg_gray) 
+        mask[:] = 255
+
+        if len(self.tracks)>0:
+            img0, img1 = self.prevImg, cvimg_gray
+            p0 = np.float32([tr[-1] for tr in self.tracks]).reshape(-1, 1, 2)
+            p1, st, err = cv.calcOpticalFlowPyrLK(img0, img1, p0, None, **self.lk_params)
+            p0r, st, err = cv.calcOpticalFlowPyrLK(img1, img0, p1, None, **self.lk_params)
+            d = abs(p0-p0r).reshape(-1, 2).max(-1)
+            good = d < 1#判断d内的值是否小于1，大于1跟踪被认为是错误的跟踪点
+            new_tracks = []
+            for tr, (x, y), good_flag in zip(self.tracks, p1.reshape(-1, 2), good):
+                x = round(x)
+                y = round(y)
+                if not good_flag:
+                    continue
+                tr.append((x, y))
+                if len(tr) > self.track_len:
+                    del tr[0]
+                new_tracks.append(tr)
+                cv.circle(cvimg, (x, y), 2, (0, 255, 0), -1)
+            self.tracks = new_tracks
+            movex = 0
+            movey = 0
+            ts = [np.int32(tr) for tr in self.tracks]
+            for i in ts:
+                s = np.subtract(i[1],i[0])
+                movex = movex+s[0]
+                movey = movey+s[1]
+            if len(ts)>0:
+                movex = round(movex/len(ts)*self.xrate)
+                movey = round(movey/len(ts)*self.yrate)
+                self.qt_comunicate.update.emit({"move":(movex,movey)})
+
+            cv.polylines(cvimg, [np.int32(tr) for tr in self.tracks], False, (0, 255, 0))
+
+        for x, y in [np.int32(tr[-1]) for tr in self.tracks]:
+            cv.circle(mask, (x, y), 5, 0, -1)
+        p = cv.goodFeaturesToTrack(cvimg_gray, mask = mask, **self.feature_params)
+        if p is not None:
+            for x, y in np.float32(p).reshape(-1, 2):
+                self.tracks.append([(x, y)])
+
+        self.prevImg = cvimg_gray
+
+        qimg = cv_img_to_qimg(cvimg)
+        self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
+
+class AntiShakeController(RecognizeController):
+
+    def __init__(self, view,start:bool) -> None:
+        super().__init__(view)
+        self.start_rec(start)
+
+        self.view.xRate.valueChanged.connect(self.changeRate)
+        self.view.yRate.valueChanged.connect(self.changeRate)
+
+    def start_rec(self,start:bool=True):
+        self.recoginizer = AntiShakeRecoginzer(self.c,0.001)
+        self.thread = start_q_thread(self.view, self.recoginizer,start)
+
+    def update(self,d:dict):
+        if "img" in d:
+            self.view.set_img(d["img"])
+        elif "move" in d:
+            movex = d["move"][0]
+            movey = d["move"][1]
+            self.status.change_fix(movex,movey)
+            self.view.set_move(movex,movey)
+
+    def changeRate(self):
+        xRate = self.view.xRate.value()
+        yRate = self.view.yRate.value()
+        self.recoginizer.xrate=xRate
+        self.recoginizer.yrate=yRate

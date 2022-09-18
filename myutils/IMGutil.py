@@ -4,7 +4,7 @@ import cv2 as cv
 from mss import mss
 from mss import tools as msstools
 from PyQt6.QtGui import QImage
-import time
+
 
 
 sct = mss()

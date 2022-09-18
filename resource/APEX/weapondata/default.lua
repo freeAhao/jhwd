@@ -1,8 +1,8 @@
 loading={10}
 
-dq={false}
+dq={2}
 
-dqrate={3}
+dqrate={2}
 
 debug={false}
 

@@ -49,6 +49,10 @@ class RecognizeController:
     def toggle_rec(self):
         if self.recoginizer.run:
             self.recoginizer.run=False
+            try:
+                self.reset_status()
+            except:
+                pass
         else:
             self.recoginizer.start.emit(True)
     
@@ -61,12 +65,6 @@ class RecognizeController:
     def updateFPS(self,fps):
         fps = int(fps)
         self.view.set_fps(fps)
-
-    def toggle_rec(self):
-        if self.recoginizer.run:
-            self.recoginizer.run=False
-        else:
-            self.recoginizer.start.emit(True)
         
     def load_config(self,name):
         self.config = Settings().get_config(name)
@@ -134,6 +132,8 @@ class WeaponRecognizeController(RecognizeController):
                 weapon = self.status.change_weapon(weaponnum)
                 self.status.write_config("change weapon to {}".format(weapon.weapon_name),True)
                 self.status.updateQueue.put("changeweapon")
+    def reset_status(self):
+        self.status.no_weapon()
 
 class PoseRecognizeController(RecognizeController):
 
@@ -156,6 +156,9 @@ class PoseRecognizeController(RecognizeController):
                 self.status.updateQueue.put("pose")
             self.view.set_similarity(d["similarity"])
             self.view.set_tips("匹配文件：{}\n相似度：{}".format(d["posepath"],d["similarity"]))
+
+    def reset_status(self):
+        self.status.no_pose()
 
 class AttachmentRecognizeController(RecognizeController):
 

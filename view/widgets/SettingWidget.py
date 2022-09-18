@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import  QWidget, QGridLayout,QMessageBox,QLabel,QPushButton
 
 from myutils.IMGutil import  get_screen_nums
 from myutils.QtUtils import  apprestart, message_critical
-from view.widgets.AIWidget import QAiFix,QBloodFix
+from view.widgets.AIWidget import QAiFix, QAntiShakeFix,QBloodFix
 from view.widgets.PubgAutoRecognizer import PubgAutoRecognizer
 from view.widgets.RecoilAnalyzeWidget import ImageRecoilAnalyze
 from controller.PubgMacroConfigController import MacroConfigController as PubgMacroConfigController
@@ -381,6 +381,7 @@ class QGameSettingWidget(QWidget):
                 recognizer = PubgAutoRecognizer()
                 bloodfix = QBloodFix()
                 ai = QAiFix()
+                antishake = QAntiShakeFix()
                 macro = PubgMacroConfigController().view
                 weapon = PubgWeaponConfigController().view
                 recoil = ImageRecoilAnalyze()
@@ -388,6 +389,7 @@ class QGameSettingWidget(QWidget):
                 tab.addTab(recognizer,"自动识别")
                 tab.addTab(bloodfix,"血雾")
                 tab.addTab(ai,"AI")
+                tab.addTab(antishake,"防抖")
                 tab.addTab(macro,"宏配置")
                 tab.addTab(weapon,"武器参数")
                 tab.addTab(recoil,"弹道辅助分析")
@@ -400,12 +402,14 @@ class QGameSettingWidget(QWidget):
                 recognizer = ApexAutoRecognizer()
                 bloodfix = QBloodFix()
                 ai = QAiFix()
+                antishake = QAntiShakeFix()
                 macro = ApexMacroConfigController().view
                 weapon = ApexWeaponConfigController().view
                 recoil = ImageRecoilAnalyze()
                 tab.addTab(recognizer,"自动识别")
                 tab.addTab(bloodfix,"血雾")
                 tab.addTab(ai,"AI")
+                tab.addTab(antishake,"防抖")
                 tab.addTab(macro,"宏配置")
                 tab.addTab(weapon,"武器参数")
                 tab.addTab(recoil,"弹道辅助分析")
