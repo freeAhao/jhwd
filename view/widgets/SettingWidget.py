@@ -37,76 +37,63 @@ class Updater(QObject):
     start = pyqtSignal(bool)
     source = {
         "GITHUB": {
-            "resource_url": "https://github.com/freeAhao/jhwd/commits/master",
-            "resource_downloadurl": "https://github.com/freeAhao/jhwd/archive/refs/heads/master.zip",
-            "app_url": "https://github.com/freeAhao/jhwd/commits/app",
-            "app_downloadurl": "https://github.com/freeAhao/jhwd/archive/refs/heads/app.zip",
-            "commit-xpath": "//clipboard-copy/@value"
-        },
-        "GITEE": {
-            "resource_url": "https://gitee.com/freeAhao/jhwd/commits/master",
-            "resource_downloadurl": "https://gitee.com/freeAhao/jhwd/repository/archive/master.zip",
-            "app_url": "https://gitee.com/freeAhao/jhwd/commits/app",
-            "app_downloadurl": "https://gitee.com/freeAhao/jhwd/repository/archive/app.zip",
-            "commit-xpath": "//*[@class='commit-short-id']/@value"
-        },
-        "JIHULAB": {
-            "resource_url": "https://jihulab.com/freeahao1/jhwd/-/commits/master",
-            "resource_downloadurl": "https://jihulab.com/freeahao1/jhwd/-/archive/master/jhwd-master.zip",
-            "app_url": "https://jihulab.com/freeahao1/jhwd/-/commits/app",
-            "app_downloadurl": "https://jihulab.com/freeahao1/jhwd/-/archive/app/jhwd-app.zip",
-            "commit-xpath": "//button[@class='btn gl-button btn btn-default btn-icon']/@data-clipboard-text"
+            "resource_url": "https://github.com/freeAhao/jhwd/commits/source/resource",
+            "resource_xpath": "//clipboard-copy/@value",
+            "resource_download_url": "https://github.com/freeAhao/jhwd/archive/refs/heads/source.zip",
+            "app_url": "https://github.com/freeAhao/jhwd/releases",
+            "app_xpath": "//h1[@class='d-inline mr-3']/a/@href",
+            "app_download_url": "https://github.com/freeAhao/jhwd/releases/download/{}/release.zip",
         }
     }
-
 
     setting = Settings()
     csource = None
 
     def download(self,zipname, url):
-        if not os.path.exists(zipname):
-            with requests.get(url,stream=True) as r:
-                with open(zipname,"wb") as f:
-                    for chunk in r.iter_content(chunk_size=1024*1024):
-                        if chunk:
-                            f.write(chunk)
-            return True
+        try:
+            if not os.path.exists(zipname):
+                with requests.get(url,stream=True) as r:
+                    with open(zipname,"wb") as f:
+                        for chunk in r.iter_content(chunk_size=1024*1024):
+                            if chunk:
+                                f.write(chunk)
+                return True
+        except:
+            raise Exception("下载失败")
                     
     def extract(self,zipname,updatetype,commit=""):
 
         if updatetype == 0:
-            parentFolder = "jhwd-master/"
+            parentFolder = "jhwd-source/"
         elif updatetype == 1:
-            parentFolder = "jhwd-app/"
+            parentFolder = ""
 
         if zipfile.is_zipfile(zipname):
             f = zipfile.ZipFile(zipname)
             listOfFileNames = f.namelist()
-            for fileName in listOfFileNames[1:]:
-                f.extract(fileName,".")
-                if fileName.endswith("app.exe"):
-                    shutil.move(fileName,fileName.replace(parentFolder,"./").replace("app.exe","app-{}.exe".format(commit)))
-                else:
-                    try:
-                        if fileName.endswith("/") and os.path.exists(fileName.replace(parentFolder,"./")):
-                            print(fileName,"跳过存在的目录")
-                            continue
+            if updatetype==0:
+                # 备份文件
+                if os.path.exists("./resource-备份/"):
+                    shutil.rmtree("./resource-备份")
+                shutil.move("./resource/","./resource-备份/")
+            for fileName in listOfFileNames:
+                try:
+                    if updatetype==0 and fileName.startswith(parentFolder+"resource/"):
+                        # 解压文件
+                        f.extract(fileName,".")
                         shutil.move(fileName,fileName.replace(parentFolder,"./"))
-                        print(fileName,fileName.replace(parentFolder,"./"),"更新成功")
-                    except Exception as e:
-                        QMessageBox.critical(None,"更新","更新错误:"+str(e))
-                        continue
-
-
+                        shutil.rmtree(parentFolder)
+                    elif updatetype==1 and fileName.startswith("app.exe"):
+                        f.extract(fileName,"./app-update/")
+                        shutil.move("./app-update/app.exe","./app-{}.exe".format(commit))
+                        shutil.rmtree("./app-update/")
+                except:
+                    traceback.print_exc()
         if updatetype==0:
-            Settings().config["app"]["commit1"] = commit
+            Settings().app_config["commit1"] = commit
         elif updatetype==1:
-            Settings().config["app"]["commit2"] = commit
-        Settings().save_config_to_json()
-        try:
-            shutil.rmtree(parentFolder)
-        except:
-            pass
+            Settings().app_config["commit2"] = commit
+        Settings().save_app_config_to_json()
 
     def check_update(self,updatetype):
         try:
@@ -114,21 +101,24 @@ class Updater(QObject):
                 res = requests.get(self.source[self.csource]["resource_url"],timeout=5,headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
                 })
+                page = etree.HTML(res.content)
+                commits = page.xpath(self.source[self.csource]["resource_xpath"])
+                if commits:
+                    commits = str(commits[0])
             elif updatetype==1:
                 res = requests.get(self.source[self.csource]["app_url"],timeout=5)
-                
-            page = etree.HTML(res.content)
-            commits = page.xpath(self.source[self.csource]["commit-xpath"])
+                page = etree.HTML(res.content)
+                commits = page.xpath(self.source[self.csource]["app_xpath"])
+                if commits:
+                    commits = str(commits[0]).split("/")[-1]
 
             if res.status_code != 200 or not commits or len(commits)==0:
                 raise Exception("更新平台异常")
 
-            if commits:
-                commits = str(commits[0])
             if updatetype == 0:
-                return not ("commit1" in self.setting.get_config("app") and commits == self.setting.get_config("app")["commit1"]), commits
+                return not ("commit1" in self.setting.app_config and commits == self.setting.app_config["commit1"]), commits
             elif updatetype == 1:
-                return not ("commit2" in self.setting.get_config("app") and commits == self.setting.get_config("app")["commit2"]), commits
+                return not ("commit2" in self.setting.app_config and commits == self.setting.app_config["commit2"]), commits
         except Exception as e:
             QMessageBox.critical(None,"更新","更新错误:"+str(e))
             return False,None
@@ -175,9 +165,9 @@ class Updater(QObject):
         super().__init__()
         self.start.connect(self.check)
         try:
-            self.csource = self.setting.get_config("app")["update"]
+            self.csource = self.setting.app_config["update"]
         except:
-            self.csource = "gitee"
+            self.csource = "GITHUB"
 
 class QUpdateWidget(QWidget):
 
@@ -196,7 +186,7 @@ class QUpdateWidget(QWidget):
         self.sourceBTNS = []
         btnbox = QGroupBox("更新源")
         btngrid = QGridLayout()
-        for btn in ["GITHUB","GITEE","JIHULAB"]:
+        for btn in ["GITHUB"]:
             radiobtn = QRadioButton(btn)
             radiobtn.clicked.connect(self.choose_source)
             radiobtn.setObjectName(btn)
@@ -210,7 +200,7 @@ class QUpdateWidget(QWidget):
             for btn in self.sourceBTNS:
                 btn.setChecked(str(source).upper()==btn.objectName())
         except:
-            default = 'JIHULAB'
+            default = 'GITHUB'
             btn = [btn if btn.objectName() == default else None for btn in self.sourceBTNS][0]
             btn.setChecked(True)
             self.u.choose_source(default)
@@ -247,21 +237,22 @@ class QUpdateWidget(QWidget):
         if self.resource_update and self.commitres:
             try:
                 zipname = "resource-{}.zip".format(self.commitres[:6])
-                self.u.download(zipname, self.u.resource_downloadurl)
+                self.u.download(zipname, self.u.source[self.u.csource]["resource_download_url"])
                 self.u.extract(zipname, 0,self.commitres)
                 result += "资源文件夹更新成功\n"
             except Exception as e:
+                traceback.print_exc()
                 result += "资源文件夹更新失败："+str(e)+"\n"
 
         if self.app_update and self.commitapp:
             try:
                 zipname = "app-{}.zip".format(self.commitapp[:6])
-                self.u.download(zipname, self.u.app_downloadurl)
+                self.u.download(zipname, self.u.source[self.u.csource]["app_download_url"].format(self.commitapp))
                 self.u.extract(zipname,1,self.commitapp)
                 result += "app更新成功\n"
             except Exception as e:
+                traceback.print_exc()
                 result += "app更新失败："+str(e)+"\n"
-        print(result)
         self.labelupdate.setText(result)
         QMessageBox.information(None,"更新","更新完成，请重启:\n"+str(result))
         sys.exit()
@@ -286,6 +277,7 @@ class QUpdateWidget(QWidget):
             self.commitres = None
             self.app_update = None
             self.commitapp = None
+            self.labelupdate.setText("已是最新版本")
             self.downbtn.setEnabled(False)
         else:
             self.downbtn.setEnabled(True)
@@ -335,9 +327,11 @@ class QGameSettingWidget(QWidget):
             self.monitorBTNS.append(screenBTN)
             screenBTN.setChecked(int(Settings().app_config["monitor"])==index+1)
         
+        updateWidget = QUpdateWidget()
 
         self.grid.addWidget(gameBtnGroup)
         self.grid.addWidget(screenBTNGroup)
+        # self.grid.addWidget(updateWidget)
         self.setLayout(self.grid)
 
         self.init_models()
