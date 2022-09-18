@@ -24,12 +24,23 @@ jobs:
     - name: Build
       run: pyinstaller app-onefile.spec
 
+    - name: Copy resource
+      run: |
+        mkdir .\dist\resource\
+        xcopy .\resource\ .\dist\resource\ /E
+
+
     - name: Zip Release
       uses: TheDoctor0/zip-release@main
       with:
         type: 'zip'
         filename: 'release.zip'
         directory: 'dist'
+
+    - name: Show Result
+      run: |
+        dir .
+        dir dist
 
     - name: Upload Release
       uses: ncipollo/release-action@v1
