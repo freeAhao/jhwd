@@ -2,7 +2,7 @@ loading={9}
 
 sensitivityrate={1.0}
 
-debug={true}
+debug={false}
 
 table["none"]={
 pose_sensitive={1.0,1.3,0.75},
