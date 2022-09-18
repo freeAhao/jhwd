@@ -35,11 +35,6 @@ jobs:
         filename: 'release.zip'
         directory: 'dist'
 
-    - name: Show Result
-      run: |
-        dir .
-        dir dist
-
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
