@@ -412,11 +412,11 @@ class QAntiShakeFix(QRecognizer):
         # self.recoginizer.start.emit(False)
         # thread.start()
 
-        grid.addWidget(imgLabel,0,0)
-        grid.addWidget(moveLabel,1,0)
-        grid.addWidget(group,2,0)
-        grid.addWidget(fpsLabel,3,0)
-        grid.addWidget(startBtn,3,1)
+        grid.addWidget(imgLabel)
+        grid.addWidget(moveLabel)
+        grid.addWidget(group)
+        grid.addWidget(fpsLabel)
+        grid.addWidget(startBtn)
 
         self.setLayout(grid)
 
