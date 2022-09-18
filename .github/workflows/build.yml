@@ -3,12 +3,21 @@ on:
   push:
     branches:
       - actiontest
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@master
-    - name: show dir
-      run: |
-        ls
+      with:
+        ref: source
+
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9' 
+    - run: pip install requirements.txt
+
+    - name: Build
+      run: pyinstaller app-onefile.spec
