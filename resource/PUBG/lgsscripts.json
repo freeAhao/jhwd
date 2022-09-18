@@ -30,7 +30,7 @@
         false
     ],
     "rightbutton": [
-        "\n    vars[\"right\"] = true\n\n    dofile(vars[\"autorecognize_file\"])\n    vars[\"weapon\"] = rweapon\n    vars[\"pose\"] = rpose\n    vars[\"scope\"] = rscope\n    vars[\"a2\"] = rattachment2\n    vars[\"a3\"] = rattachment3\n    \n    if (vars[\"autoshift\"] and vars[\"scope\"] >= vars[\"autoshiftscope\"]) or (table[vars[\"weapon\"]][\"shift\"] == true) then\n        Sleep(10)\n        PressKey(\"lshift\")\n    end\n    if debug then\n        dofile(vars[\"weapon_file\"])\n    end\n    dorecoil(vars)\n        ",
+        "\n    vars[\"right\"] = true\n\n    dofile(vars[\"autorecognize_file\"])\n    vars[\"weapon\"] = rweapon\n    vars[\"pose\"] = rpose\n    vars[\"scope\"] = rscope\n    vars[\"a2\"] = rattachment2\n    vars[\"a3\"] = rattachment3\n    \n    if (vars[\"autoshift\"] and vars[\"scope\"] >= vars[\"autoshiftscope\"]) or (table[vars[\"weapon\"]][\"shift\"] == true) then\n        Sleep(10)\n        PressKey(\"lshift\")\n    end\n    if debug[1] then\n        dofile(vars[\"weapon_file\"])\n    end\n    dorecoil(vars)\n        ",
         "\n    vars[\"right\"] = false\n        ReleaseKey(\"lshift\")\n        ",
         "",
         false

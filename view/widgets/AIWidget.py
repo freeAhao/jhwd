@@ -258,6 +258,25 @@ class QBloodFix(QRecognizer):
 
         group.setLayout(grid)
 
+        regionh = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
+        regionw = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
+        regionh.setMaximum(0.3)
+        regionh.setMinimum(0.01)
+        regionw.setMaximum(0.3)
+        regionw.setMinimum(0.01)
+        regionw.setValue(0.05)
+        regionh.setValue(0.1)
+
+        self.regionh = regionh
+        self.regionw = regionw
+        regiongroup = QGroupBox("检测区域")
+        grid =QGridLayout()
+
+        grid.addWidget(regionw,0,0)
+        grid.addWidget(regionh,1,0)
+
+        regiongroup.setLayout(grid)
+
         self.fpsLabel = fpsLabel
         self.moveLabel = moveLabel
 
@@ -278,9 +297,10 @@ class QBloodFix(QRecognizer):
         grid.addWidget(imgLabel,0,0)
         grid.addWidget(moveLabel,1,0)
         grid.addWidget(group,2,0)
-        grid.addWidget(grouphsv,3,0)
-        grid.addWidget(fpsLabel,4,0)
-        grid.addWidget(startBtn,4,1)
+        grid.addWidget(regiongroup,3,0)
+        grid.addWidget(grouphsv,4,0)
+        grid.addWidget(fpsLabel,5,0)
+        grid.addWidget(startBtn,6,0)
 
         self.setLayout(grid)
 

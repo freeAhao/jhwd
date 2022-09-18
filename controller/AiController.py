@@ -307,15 +307,19 @@ class BloodRecoginzer(Recognizer):
     h = (156,180)
     s = (43,255)
     v = (46,255)
+    regionh = 0.5
+    regionw = 0.5
 
-    def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0):
+    def __init__(self, qt_comunicate=None, sleeptime=0.01,accuracy=0,regionh=0.5,regionw=0.5):
         super().__init__(qt_comunicate, sleeptime,accuracy)
+        self.regionh = regionh
+        self.regionw = regionw
 
     def recognize(self):
-        box = (round(self.resolution[0]/2 - round(40/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(40/1080*self.resolution[1])),
-               round(self.resolution[0]/2 + round(40/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(40/1080*self.resolution[1])))
+        box = (round(self.resolution[0]/2 - round(960*self.regionw/1920*self.resolution[0])),
+               round(self.resolution[1]/2 - round(540*self.regionh/1080*self.resolution[1])),
+               round(self.resolution[0]/2 + round(960*self.regionw/1920*self.resolution[0])),
+               round(self.resolution[1]/2 + round(540*self.regionh/1080*self.resolution[1])))
         width = (box[2]-box[0])
         height = (box[3]-box[1])
         center = (int((width/2)),int((height/2)))
@@ -367,8 +371,11 @@ class BloodRecognizeController(RecognizeController):
         self.view.s.valueChanged.connect(self.changeColor)
         self.view.v.valueChanged.connect(self.changeColor)
 
+        self.view.regionh.valueChanged.connect(self.changeRegion)
+        self.view.regionw.valueChanged.connect(self.changeRegion)
+
     def start_rec(self,start:bool=True):
-        self.recoginizer = BloodRecoginzer(self.c,0.001)
+        self.recoginizer = BloodRecoginzer(self.c,0.001,0,self.view.regionh.value(),self.view.regionw.value())
         self.thread = start_q_thread(self.view, self.recoginizer,start)
 
     def update(self, d:dict):
@@ -393,6 +400,10 @@ class BloodRecognizeController(RecognizeController):
         self.recoginizer.h = h
         self.recoginizer.s = s
         self.recoginizer.v = v 
+    
+    def changeRegion(self):
+        self.recoginizer.regionh=self.view.regionh.value()
+        self.recoginizer.regionw=self.view.regionw.value()
 
 class AntiShakeRecoginzer(Recognizer):
 
