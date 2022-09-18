@@ -1,0 +1,14 @@
+name: GitHub Actions Build and Deploy Demo
+on:
+  push:
+    branches:
+      - actiontest
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: show dir
+      run: |
+        ls
