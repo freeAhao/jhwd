@@ -11,7 +11,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
       with:
-        ref: actiontest
+        ref: source
 
     - name: Setup python
       uses: actions/setup-python@v4
@@ -26,7 +26,6 @@ jobs:
       run: |
         mkdir .\dist\resource\
         xcopy .\resource\ .\dist\resource\ /E
-
 
     - name: Zip Release
       uses: TheDoctor0/zip-release@main
