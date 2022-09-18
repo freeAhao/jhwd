@@ -10,7 +10,7 @@ import numpy as np
 import cv2 as cv
 from model.Settings import Settings
 from myutils.IMGutil import *
-from myutils.AIwithoutTorch import ORDML,OVINO
+from myutils.AIwithoutTorch import ORDML
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from myutils.QtUtils import apprestart, start_q_thread

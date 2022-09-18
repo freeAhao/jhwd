@@ -6,7 +6,6 @@ import cv2
 from time import time
 import pip
 import onnxruntime
-from openvino.runtime import Core, get_batch, Layout
 
 from model.Settings import Settings
 
@@ -211,6 +210,10 @@ class OVINO(AI):
         super().__init__()
         self.device = "CPU"
         #VINO config
+        try:
+            from openvino.runtime import Core, get_batch, Layout
+        except:
+            return
         ie = Core()
         if not Path(self.w).is_file():  # if not *.xml
             w = next(Path(self.w).glob('*.xml'))  # get *.xml file from *_openvino_model dir
