@@ -26,6 +26,7 @@ jobs:
       run: |
         mkdir .\dist\resource\
         xcopy .\resource\ .\dist\resource\ /E
+        xcopy .\config.json .\dist\ /E
 
     - name: Zip Release
       uses: TheDoctor0/zip-release@main

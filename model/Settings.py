@@ -39,7 +39,8 @@ class Settings:
                 "game": "PUBG",
                 "commit1": "",
                 "commit2": "",
-                "update": "GITHUB"
+                "update": "GITHUB",
+                "ai": "DmlExecutionProvider"
             }
             self.resource_dir = "./resource/PUBG/"
             self.save_app_config_to_json()
