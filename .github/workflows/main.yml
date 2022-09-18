@@ -22,5 +22,15 @@ jobs:
     - name: Build
       run: pyinstaller app-onefile.spec
 
-    - name: show
-      run: dir
+    - name: Zip Release
+      uses: TheDoctor0/zip-release@main
+      with:
+        type: 'zip'
+        filename: 'release.zip'
+        directory: 'dist'
+
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "release.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
