@@ -3,7 +3,7 @@
         "driver": "LGS",
         "adsmode": "HOLD",
         "keybinds": {
-            "+5": "reloadconfig"
+            "lctrl,lshift,lalt+5": "reloadconfig"
         }
     },
     "pose": {

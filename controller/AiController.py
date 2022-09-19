@@ -226,11 +226,31 @@ class AIRecoginzer(Recognizer):
 
     xrate = 0.2
     yrate = 0
+    box = None
 
     def __init__(self,qt_comunicate=None, sleeptime=0.01,accuracy=0,provider='CPUExecutionProvider',):
         super().__init__(qt_comunicate, sleeptime,accuracy)
         try:
             self.ai = ORDML(provider)
+            tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
+            tracker_type = tracker_types[6]
+            if tracker_type == 'GOTURN':
+                tracker = cv.legacy.TrackerBoosting_create()
+            elif tracker_type == 'MIL':
+                tracker = cv.legacy.TrackerMIL_create()
+            elif tracker_type == 'KCF':
+                tracker = cv.legacy.TrackerKCF_create()
+            elif tracker_type == 'TLD':
+                tracker = cv.legacy.TrackerTLD_create()
+            elif tracker_type == 'MEDIANFLOW':
+                tracker = cv.legacy.TrackerMedianFlow_create()
+            elif tracker_type == 'GOTURN':
+                tracker = cv.legacy.TrackerGOTURN_create()
+            elif tracker_type == 'MOSSE':
+                tracker = cv.legacy.TrackerMOSSE_create()
+            elif tracker_type == "CSRT":
+                tracker = cv.TrackerCSRT_create()
+            self.tracker = tracker
         except:
             traceback.print_exc()
             self.ai = None
@@ -251,11 +271,44 @@ class AIRecoginzer(Recognizer):
         img = screenshot(box)
         cvimg = screenshot_to_cv(img)
         # cvimg = resize_img(cvimg,self.resize_rate)
+        # try track
+        if self.box and time.time()-self.detecttime<0.5:
+            trackimg = cv.cvtColor(cvimg,cv.COLOR_BGRA2BGR)
+            trackimg,_ = self.ai.circle_mask(trackimg)
+            ok,bbox = self.tracker.update(trackimg)
+            if ok:
+                p1 = (int(bbox[0]),int(bbox[1]))
+                p2 = (int(bbox[0] + bbox[2]),int(bbox[1] + bbox[3]))
+                cv.rectangle(trackimg,p1,p2,(0,255,0),2,1)
+
+                boxcenter = (
+                    round(bbox[0]+(bbox[2]/2)),
+                    round(bbox[1]+(bbox[3]/2)),
+                )
+                cv.line(trackimg,center,boxcenter,(255,255,255))
+
+                movex = int((boxcenter[0]-center[0])*self.xrate)
+                movey = int((boxcenter[1]-center[1])*self.yrate)
+                self.qt_comunicate.update.emit({"move":(movex,movey)})
+                qimg = cv_img_to_qimg(trackimg)
+                self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
+                return
+            else:
+                self.box = None
 
         img,box = self.ai.detect(cvimg)
         if box:
-            boxcenter = self.findclose(box,center,width,height)
+            boxcenter,bbox = self.findclose(box,center,width,height)
             if boxcenter:
+
+                trackimg = cv.cvtColor(cvimg,cv.COLOR_BGRA2BGR)
+                trackimg,_ = self.ai.circle_mask(cvimg)
+                self.box = bbox
+                self.detecttime = time.time()
+
+                self.tracker = cv.legacy.TrackerMOSSE_create()
+                self.tracker.init(trackimg,bbox)
+
                 cv.line(img,center,boxcenter,(255,255,255))
 
                 movex = int((boxcenter[0]-center[0])*self.xrate)
@@ -264,6 +317,7 @@ class AIRecoginzer(Recognizer):
                 # filename = "E:/Video/ai/"+str(time.time())+".jpg"
                 # cv.imwrite(filename,img)
         else:
+            self.box = None
             self.qt_comunicate.update.emit({"move":(0,0)})
 
         qimg = cv_img_to_qimg(img)
@@ -294,8 +348,8 @@ class AIRecoginzer(Recognizer):
                 continue
         # 识别率不高的情况下，不锁准心外的目标
         if center[0] > closebox[0]-(self.ai.fixregion)*closebox[2] and center[0] < closebox[0]+(self.ai.fixregion+1)*closebox[2] and center[1] > closebox[1]-(self.ai.fixregion)*closebox[3] and center[1] < closebox[1]+(self.ai.fixregion+1)*closebox[3]:
-            return boxcenter
-        return None
+            return boxcenter,closebox
+        return None,None
     
     def changeEngine(self,engine):
         if engine in self.ai.providers.keys():
