@@ -233,7 +233,7 @@ class AIRecoginzer(Recognizer):
         try:
             self.ai = ORDML(provider)
             tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
-            tracker_type = tracker_types[6]
+            tracker_type = tracker_types[4]
             if tracker_type == 'GOTURN':
                 tracker = cv.legacy.TrackerBoosting_create()
             elif tracker_type == 'MIL':
@@ -272,7 +272,7 @@ class AIRecoginzer(Recognizer):
         cvimg = screenshot_to_cv(img)
         # cvimg = resize_img(cvimg,self.resize_rate)
         # try track
-        if self.box and time.time()-self.detecttime<0.5:
+        if self.box and time.time()-self.detecttime<1:
             trackimg = cv.cvtColor(cvimg,cv.COLOR_BGRA2BGR)
             trackimg,_ = self.ai.circle_mask(trackimg)
             ok,bbox = self.tracker.update(trackimg)
@@ -283,7 +283,7 @@ class AIRecoginzer(Recognizer):
 
                 boxcenter = (
                     round(bbox[0]+(bbox[2]/2)),
-                    round(bbox[1]+(bbox[3]/2)),
+                    round(bbox[1]+(bbox[3]/5)),
                 )
                 cv.line(trackimg,center,boxcenter,(255,255,255))
 
@@ -306,14 +306,18 @@ class AIRecoginzer(Recognizer):
                 self.box = bbox
                 self.detecttime = time.time()
 
-                self.tracker = cv.legacy.TrackerMOSSE_create()
+                # self.tracker = cv.legacy.TrackerMOSSE_create()
+                # self.tracker = cv.TrackerGOTURN_create()
+                self.tracker = cv.legacy.TrackerMedianFlow_create()
+                # tracker = cv.TrackerCSRT_create()
                 self.tracker.init(trackimg,bbox)
 
-                cv.line(img,center,boxcenter,(255,255,255))
+                # cv.line(img,center,boxcenter,(255,255,255))
 
-                movex = int((boxcenter[0]-center[0])*self.xrate)
-                movey = int((boxcenter[1]-center[1])*self.yrate)
-                self.qt_comunicate.update.emit({"move":(movex,movey)})
+                # movex = int((boxcenter[0]-center[0])*self.xrate)
+                # movey = int((boxcenter[1]-center[1])*self.yrate)
+                # self.qt_comunicate.update.emit({"move":(movex,movey)})
+
                 # filename = "E:/Video/ai/"+str(time.time())+".jpg"
                 # cv.imwrite(filename,img)
         else:
@@ -335,7 +339,7 @@ class AIRecoginzer(Recognizer):
             # print(b[2]*b[3],w*h,(b[2]*b[3])/(w*h))
             boxcenter_t = (
                 round(b[0]+(b[2]/2)),
-                round(b[1]+(b[3]/2)),
+                round(b[1]+(b[3]/5)),
             )
             x = int(boxcenter_t[0]-center[0])
             y = int(boxcenter_t[1]-center[1])
