@@ -24,7 +24,7 @@
         true
     ],
     "leftbutton": [
-        "\n    vars[\"left\"] = true\n    start_time = GetRunningTime()\n    step = 1\n    xCounter=0\n    yCounter=0\n    dorecoil(vars)\n        ",
+        "    dofile(vars[\"autorecognize_file\"])\n    vars[\"weapon\"] = rweapon\n    vars[\"pose\"] = rpose\n    vars[\"scope\"] = rscope\n    vars[\"a2\"] = rattachment2\n    vars[\"a3\"] = rattachment3\n    vars[\"left\"] = true\n    start_time = GetRunningTime()\n    step = 1\n    xCounter=0\n    yCounter=0\n    dorecoil(vars)\n        ",
         "    step = 1\n    xCounter=0\n    yCounter=0\n    vars[\"left\"] = false\n        ",
         "",
         false
@@ -42,7 +42,7 @@
         false
     ],
     "ads": [
-        "\n    if vars[\"adsmode\"] == \"HOLD\" then\n        return (vars[\"left\"] and vars[\"right\"]) or (vars[\"left\"] and vars[\"aim\"]) or (vars[\"right\"])\n    end\n    if vars[\"adsmode\"] == \"CLICK\" then\n        return vars[\"left\"] and IsKeyLockOn(\"Capslock\")\n    end\n",
+        "\n    if vars[\"adsmode\"] == \"HOLD\" then\n        return (vars[\"left\"] and vars[\"right\"]) or (vars[\"left\"] and vars[\"aim\"]) \n    end\n    if vars[\"adsmode\"] == \"CLICK\" then\n        return vars[\"left\"] and IsKeyLockOn(\"Capslock\")\n    end\n",
         "",
         "",
         false
