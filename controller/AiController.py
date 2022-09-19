@@ -205,8 +205,12 @@ class Recognizer(QObject):
 
     def check_resolution(self):
         
-        height, width, _ = full_screenshot(screenum=int(Settings().app_config["monitor"])).shape
-        self.resolution = [width,height]
+        # height, width, _ = full_screenshot(screenum=int(Settings().app_config["monitor"])).shape
+        monitor = get_screen_nums()[int(Settings().app_config["monitor"])]
+        
+        self.left = monitor["left"]
+        self.top = monitor["top"]
+        self.resolution = [monitor["width"],monitor["height"]]
 
     @pyqtSlot(bool)
     def rec(self, run):
@@ -236,10 +240,10 @@ class AIRecoginzer(Recognizer):
     def recognize(self):
         if not self.ai:
             return
-        box = (round(self.resolution[0]/2 - round(320/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(320/1080*self.resolution[1])),
-               round(self.resolution[0]/2 + round(320/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(320/1080*self.resolution[1])))
+        box = (round(self.resolution[0]/2 - round(320/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 - round(320/1080*self.resolution[1])+self.top),
+               round(self.resolution[0]/2 + round(320/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 + round(320/1080*self.resolution[1]))+self.top)
         width = (box[2]-box[0])
         height = (box[3]-box[1])
         center = (int((width/2)),int((height/2)))
@@ -316,10 +320,10 @@ class BloodRecoginzer(Recognizer):
         self.regionw = regionw
 
     def recognize(self):
-        box = (round(self.resolution[0]/2 - round(960*self.regionw/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(540*self.regionh/1080*self.resolution[1])),
-               round(self.resolution[0]/2 + round(960*self.regionw/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(540*self.regionh/1080*self.resolution[1])))
+        box = (round(self.resolution[0]/2 - round(960*self.regionw/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 - round(540*self.regionh/1080*self.resolution[1])+self.top),
+               round(self.resolution[0]/2 + round(960*self.regionw/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 + round(540*self.regionh/1080*self.resolution[1])+self.top))
         width = (box[2]-box[0])
         height = (box[3]-box[1])
         center = (int((width/2)),int((height/2)))
@@ -425,10 +429,10 @@ class AntiShakeRecoginzer(Recognizer):
         super().__init__(qt_comunicate, sleeptime,accuracy)
 
     def recognize(self):
-        box = (round(self.resolution[0]/2 - round(80/1920*self.resolution[0])),
-               round(self.resolution[1]/2 - round(80/1080*self.resolution[1])),
-               round(self.resolution[0]/2 + round(80/1920*self.resolution[0])),
-               round(self.resolution[1]/2 + round(80/1080*self.resolution[1])))
+        box = (round(self.resolution[0]/2 - round(80/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 - round(80/1080*self.resolution[1])+self.top),
+               round(self.resolution[0]/2 + round(80/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 + round(80/1080*self.resolution[1])+self.top))
         width = (box[2]-box[0])
         height = (box[3]-box[1])
         center = (int((width/2)),int((height/2)))

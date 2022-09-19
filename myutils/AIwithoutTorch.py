@@ -151,52 +151,25 @@ class ORDML(AI):
         "CUDAExecutionProvider": "onnxruntime-gpu"
     }
 
-    def uninstall(self):
-        # del self.session
-        # for p in self.providers:
-        #     try:
-        #         pip.main(['uninstall',"-y",self.providers[p]])
-        #     except:
-        #         pass
-        pass
-
-    def install(self,provider):
-        pip.main(['install',self.providers[provider],"-i","https://mirrors.bfsu.edu.cn/pypi/web/simple/","--trusted-host","mirrors.bfsu.edu.cn"])
-
     def __init__(self,provider) -> None:
         super().__init__()
-        # print(onnxruntime.get_all_providers())
-        # print(onnxruntime.get_available_providers())
-        # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['TensorrtExecutionProvider'], sess_options=options)
-        # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CUDAExecutionProvider'], sess_options=options)
-
-        # DirectML
         try:
             import onnxruntime
         except:
             raise Exception("onnxruntime not found")
 
         if provider=="DmlExecutionProvider":
-            # self.install(provider)
             options = onnxruntime.SessionOptions()
             options.enable_mem_pattern = False
             options.execution_mode = onnxruntime.ExecutionMode.ORT_SEQUENTIAL
             session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['DmlExecutionProvider','CPUExecutionProvider'], sess_options=options)
         elif provider=="CPUExecutionProvider":
-            # self.install(provider)
             options = onnxruntime.SessionOptions()
             session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CPUExecutionProvider'], sess_options=options)
         elif provider=="CUDAExecutionProvider":
-            # self.install(provider)
             options = onnxruntime.SessionOptions()
             session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CUDAExecutionProvider','CPUExecutionProvider'], sess_options=options)
         
-        # elif provider=="TensorrtExecutionProvider":
-        #     import onnxruntime
-        #     options = onnxruntime.SessionOptions()
-        #     session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['TensorrtExecutionProvider','CUDAExecutionProvider','CUDAExecutionProvider'], sess_options=options)
-
-        # session = onnxruntime.InferenceSession(self.w+"best.onnx", providers=['CPUExecutionProvider'], sess_options=options)
         self.session = session
         meta = session.get_modelmeta().custom_metadata_map  # metadata
         if 'stride' in meta:

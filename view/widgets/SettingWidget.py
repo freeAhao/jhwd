@@ -207,7 +207,6 @@ class QUpdateWidget(QWidget):
 
         self.label = QLabel("")
         self.labelupdate = QLabel("")
-        #"更新通过github，可能出现网络问题。<br>手动更新地址 <a href='https://github.com/freeAhao/jhwd'>freeAhao/jhwd</a> <br>master分支：resource资源目录<br>app分支：app执行文件"
         self.labelnotiece = QLabel()
         self.labelnotiece.setOpenExternalLinks(True)
 
