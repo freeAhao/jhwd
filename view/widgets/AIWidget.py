@@ -1,4 +1,5 @@
 
+from superqt import QLabeledSlider
 from model.Settings import Settings
 from myutils.QtUtils import set_label_img,qimg_to_qpix
 from controller.AiController import AIRecognizeController, AntiShakeController,BloodRecognizeController
@@ -74,9 +75,9 @@ class QAiFix(QRecognizer):
         grid =QGridLayout()
 
         providerBox = QComboBox()
-        providerBox.addItem("CPUExecutionProvider","CPUExecutionProvider")
+        # providerBox.addItem("CPUExecutionProvider","CPUExecutionProvider")
         providerBox.addItem("DmlExecutionProvider","DmlExecutionProvider")
-        providerBox.addItem("CUDAExecutionProvider","CUDAExecutionProvider")
+        # providerBox.addItem("CUDAExecutionProvider","CUDAExecutionProvider")
         # providerBox.addItem("TensorrtExecutionProvider","TensorrtExecutionProvider")
         self.providerBox = providerBox
         # ordmlBTN = QRadioButton("onnxruntime DirectML (AMD-GPU)") #onnxruntime dml (GPU)
@@ -90,7 +91,20 @@ class QAiFix(QRecognizer):
         # self.ptorchBTN = ptorchBTN
         # self.tensortBTN = tensortBTN
 
+        track = QCheckBox("目标跟踪算法补偿帧率 追踪时间(秒)：")
+        track.setChecked(True)
+        self.track = track
+
+        tracktime = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
+        tracktime.setMaximum(3)
+        tracktime.setMinimum(0.1)
+        tracktime.setValue(0.5)
+        tracktime.setSingleStep(0.01)
+        self.tracktime = tracktime
+
         grid.addWidget(providerBox)
+        grid.addWidget(track)
+        grid.addWidget(tracktime,1,1)
         # grid.addWidget(ordmlBTN, 0,0)
         # grid.addWidget(ovinoBTN, 0,1)
         # grid.addWidget(ptorchBTN, 1,0)

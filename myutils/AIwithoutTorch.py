@@ -119,16 +119,21 @@ class AI():
         cv2.rectangle(frame, (left, top), (right, bottom), self.RED, self.THICKNESS)
         cv2.putText(frame, label, (left, top), self.FONT_FACE, self.FONT_SCALE, self.YELLOW, self.THICKNESS,cv2.LINE_AA)
 
-        xywh = [
+        il,it,iw,ih = (
             left,
             top,
             right-left,
             bottom-top,
-        ]
-
-        p1 = (int(xywh[0]-xywh[2]*(self.fixregion)), int(xywh[1]-xywh[3]*(self.fixregion)))
-        p2 = (int(xywh[0]+xywh[2]*(self.fixregion+1)), int(xywh[1]+xywh[3]*(self.fixregion+1)))
-        cv2.rectangle(frame, p1, p2, self.BLUE, self.THICKNESS)
+        )
+        op1 = (
+            int(il-self.fixregion/2*iw),
+            int(it-self.fixregion/3*ih),
+        )
+        op2 = (
+            int(il+iw+self.fixregion/2*iw),
+            int(it+ih+self.fixregion/3*ih),
+        )
+        cv2.rectangle(frame, op1, op2, self.BLUE, self.THICKNESS)
 
         return frame
 
