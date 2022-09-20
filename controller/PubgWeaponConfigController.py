@@ -205,7 +205,7 @@ class WeaponConfigController():
                     continue
                 dsplit = d.split(",")
                 keys_sorted.append(int(dsplit[0]))
-                datas_result[int(dsplit[0])] = [int(dsplit[1]),int(dsplit[2])]
+                datas_result[int(dsplit[0])] = [float(dsplit[1]),float(dsplit[2])]
             keys_sorted.sort()
 
             self.view.weapon_data_result.setText("这里显示最终结果")
@@ -241,6 +241,7 @@ class WeaponConfigController():
             self.datas["weapons"][weapon_name]["countdatax"] = countdatax
             self.datas["weapons"][weapon_name]["countdatay"] = countdatay
         except:
+            traceback.print_exc()
             self.view.weapon_data_result.setText("")
         self.apply()
 

@@ -306,7 +306,7 @@ class AIRecoginzer(Recognizer):
                 int(it+ih+(self.ai.fixregion/3)*ih)
             )
 
-            if ok and self.pointer_in_range(center,bbox):
+            if ok and self.pointer_in_range(center,bbox) and self.area_limit(bbox):
                 cv.rectangle(simg,ip1,ip2,(0,255,0),3,cv.LINE_AA)
                 cv.putText(simg, "TARGET", ip1, cv.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3,cv.LINE_AA)
                 cv.rectangle(simg,op1,op2,(255,178,50),1,cv.LINE_AA)
@@ -336,7 +336,10 @@ class AIRecoginzer(Recognizer):
 
         if box:
             boxcenter,bbox = self.findclose(box,center,width,height)
-            if boxcenter:
+            if not self.area_limit(bbox):
+                self.box = None
+                self.qt_comunicate.update.emit({"move":(0,0)})
+            elif boxcenter:
 
                 trackimg = cv.cvtColor(cvimg,cv.COLOR_BGRA2BGR)
                 trackimg,_ = self.ai.circle_mask(cvimg)
@@ -362,11 +365,17 @@ class AIRecoginzer(Recognizer):
 
         text = "{}fps".format(round(1/(time.time()-self.strat_time)))
         cv.putText(img,text,(5,50),cv.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
-        if box and bbox:
+        if box and bbox and self.area_limit(bbox):
             cv.rectangle(img,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,0),3,cv.LINE_AA)
         cv.circle(img,center,5,(0,255,0),3,cv.LINE_AA)
         qimg = cv_img_to_qimg(img)
         self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
+    
+    def area_limit(self,bbox):
+        radius = round(640*self.ai.airegion)
+        detech_area = radius*radius*math.pi
+        box_area = bbox[2] *bbox[3]
+        return box_area/detech_area <0.5 and bbox[2]/bbox[3]<1
 
     def pointer_in_range(self,point,xywh):
         il,it,iw,ih = xywh
