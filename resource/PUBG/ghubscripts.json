@@ -42,7 +42,7 @@
         false
     ],
     "ads": [
-        "\n    if vars[\"adsmode\"] == \"HOLD\" then\n        return (IsMouseButtonPressed(1) and IsMouseButtonPressed(3)) or (IsMouseButtonPressed(1) and vars[\"aim\"])\n    end\n    if vars[\"adsmode\"] == \"CLICK\" then\n        return IsMouseButtonPressed(1) and IsKeyLockOn(\"Capslock\")\n    end\n",
+        "\n    if vars[\"adsmode\"] == \"HOLD\" then\n        if not table[vars[\"weapon\"]] or #table[vars[\"weapon\"]][\"countdatax\"] == 1 then\n             return (vars[\"left\"] and vars[\"right\"]) or (vars[\"left\"] and vars[\"aim\"])  or vars[\"right\"]\n        end\n        return (IsMouseButtonPressed(1) and IsMouseButtonPressed(3)) or (IsMouseButtonPressed(1) and vars[\"aim\"])\n    end\n    if vars[\"adsmode\"] == \"CLICK\" then\n        return IsMouseButtonPressed(1) and IsKeyLockOn(\"Capslock\")\n    end\n",
         "",
         "",
         false

@@ -42,7 +42,7 @@
         false
     ],
     "ads": [
-        "\n    if vars[\"adsmode\"] == \"HOLD\" then\n        return (vars[\"left\"] and vars[\"right\"]) or (vars[\"left\"] and vars[\"aim\"]) \n    end\n    if vars[\"adsmode\"] == \"CLICK\" then\n        return vars[\"left\"] and IsKeyLockOn(\"Capslock\")\n    end\n",
+        "\n    if vars[\"adsmode\"] == \"HOLD\" then\n        if not table[vars[\"weapon\"]] or #table[vars[\"weapon\"]][\"countdatax\"] == 1 then\n             return (vars[\"left\"] and vars[\"right\"]) or (vars[\"left\"] and vars[\"aim\"])  or vars[\"right\"]\n        end\n        return (vars[\"left\"] and vars[\"right\"]) or (vars[\"left\"] and vars[\"aim\"]) \n    end\n    if vars[\"adsmode\"] == \"CLICK\" then\n        return vars[\"left\"] and IsKeyLockOn(\"Capslock\")\n    end\n",
         "",
         "",
         false
