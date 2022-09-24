@@ -8,7 +8,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=["C:/hostedtoolcache/windows/Python/3.9.13/x64/lib/site-packages/onnxruntime/capi/onnxruntime_providers_shared.dll"],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
