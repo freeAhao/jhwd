@@ -14,7 +14,7 @@ class AI():
         self.w = Settings().resource_dir+"weights/"
         self.INPUT_WIDTH         = 640
         self.INPUT_HEIGHT        = 640
-        self.SCORE_THRESHOLD     = 0.7
+        self.SCORE_THRESHOLD     = 0.4
         self.NMS_THRESHOLD       = 0.4
         self.CONFIDENCE_THRESHOLD= 0.4
         self.FONT_FACE           = cv2.FONT_HERSHEY_SIMPLEX
@@ -81,15 +81,19 @@ class AI():
         confidences = []
         boxes = []
         for detection in outs[np.where(outs[:,4]>self.SCORE_THRESHOLD)]:
+            scores = detection[5:]
+            classId = np.argmax(scores)
+            confidence = scores[classId]
             # confidence = detection[5]
-            # if confidence > self.CONFIDENCE_THRESHOLD:
+            if not confidence > self.CONFIDENCE_THRESHOLD:
+                continue
             center_x = int((detection[0] - padw) * ratiow)
             center_y = int((detection[1] - padh) * ratioh)
             width = int(detection[2] * ratiow)
             height = int(detection[3] * ratioh)
             left = int(center_x - width / 2)
             top = int(center_y - height / 2)
-            # classIds.append(classId)
+            classIds.append(classId)
             confidence = detection[4]
             confidences.append(float(confidence))
             boxes.append([left, top, width, height])
@@ -104,7 +108,7 @@ class AI():
             top = box[1]
             width = box[2]
             height = box[3]
-            frame = self.drawPred(frame, 0, confidences[i], left, top, left + width, top + height)
+            frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
             iboxs.append([left,top,width,height])
         return frame,iboxs
 

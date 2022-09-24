@@ -12,7 +12,7 @@
         false
     ],
     "rightbutton": [
-        "\n    vars[\"right\"] = true\n    --start_time = GetRunningTime()\n\n    dofile(vars[\"autorecognize_file\"])\n    vars[\"weapon\"] = rweapon\n\n    -- \u5f00\u542f\u8c03\u8bd5\u6a21\u5f0f\u540e \u6309\u4e0b\u53f3\u952e\u5373\u53ef\u8bfb\u53d6\u65b0\u5f39\u9053\n    if debug[1] then\n        dofile(vars[\"weapon_file\"])\n        log = log .. \"reload weapon data\\n\"\n    end\n\n    dorecoil(vars)\n        ",
+        "\n    vars[\"right\"] = true\n    --start_time = GetRunningTime()\n\n    dofile(vars[\"autorecognize_file\"])\n    vars[\"weapon\"] = rweapon\n\n    -- \u5f00\u542f\u8c03\u8bd5\u6a21\u5f0f\u540e \u6309\u4e0b\u53f3\u952e\u5373\u53ef\u8bfb\u53d6\u65b0\u5f39\u9053\n    if debug[1] then\n        dofile(vars[\"weapon_file\"])\n    end\n\n    dorecoil(vars)\n        ",
         "\n    vars[\"right\"] = false\n\n        ",
         "",
         false

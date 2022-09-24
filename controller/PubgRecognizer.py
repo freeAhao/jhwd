@@ -4,6 +4,7 @@ import os
 from tempfile import gettempdir
 import time
 from time import sleep
+import traceback
 
 import numpy as np
 import cv2 as cv
@@ -47,6 +48,8 @@ class Recognizer(QObject):
                 self.boxs = json.load(f)
             monitor = get_screen_nums()[int(Settings().app_config["monitor"])]
             for k in self.boxs:
+                if not k in ["weapon1","weapon2","pose"]:
+                    continue
                 point = self.boxs[k]
                 newpoint = [point[0]+monitor["left"],point[1]+monitor["top"]]
                 self.boxs[k] = newpoint
@@ -264,7 +267,7 @@ class AttachmentRecoginzer(Recognizer):
         return False,f
         
     def recognize(self):
-        weapon_info_img = screenshot((0,0,self.resolution[0],self.resolution[1]))
+        weapon_info_img = full_screenshot(int(Settings().app_config["monitor"]))
         weapon_info_img = screenshot_to_cv(weapon_info_img)
         open,r = self.is_backpack_open(weapon_info_img)
         if not open:
