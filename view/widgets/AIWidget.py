@@ -76,8 +76,8 @@ class QAiFix(QRecognizer):
 
         providerBox = QComboBox()
         # providerBox.addItem("CPUExecutionProvider","CPUExecutionProvider")
-        providerBox.addItem("DmlExecutionProvider","DmlExecutionProvider")
-        # providerBox.addItem("CUDAExecutionProvider","CUDAExecutionProvider")
+        # providerBox.addItem("DmlExecutionProvider","DmlExecutionProvider")
+        providerBox.addItem("CUDAExecutionProvider","CUDAExecutionProvider")
         # providerBox.addItem("TensorrtExecutionProvider","TensorrtExecutionProvider")
         self.providerBox = providerBox
         # ordmlBTN = QRadioButton("onnxruntime DirectML (AMD-GPU)") #onnxruntime dml (GPU)

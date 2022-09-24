@@ -4,5 +4,5 @@
     "commit1": "5eedf5dad63094a51891ce0094ef8380bba4bf8a",
     "commit2": "v1.0.0",
     "update": "GITHUB",
-    "ai": "DmlExecutionProvider"
+    "ai": "CUDAExecutionProvider"
 }
