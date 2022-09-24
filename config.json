@@ -1,8 +1,8 @@
 {
     "monitor": "1",
     "game": "PUBG",
-    "commit1": "5eedf5dad63094a51891ce0094ef8380bba4bf8a",
-    "commit2": "v1.0.0",
+    "commit1": "",
+    "commit2": "",
     "update": "GITHUB",
     "ai": "CUDAExecutionProvider"
 }
