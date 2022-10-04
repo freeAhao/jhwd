@@ -49,7 +49,7 @@ class Recognizer(QObject):
                 point = self.boxs[k]
                 newpoint = [point[0]+monitor["left"],point[1]+monitor["top"]]
                 self.boxs[k] = newpoint
-            self.resize_rate = float(1080/height)
+            self.resize_rate = float(height/1080)
         except FileNotFoundError as e:
             raise FileNotFoundError("不支持的分辨率{}x{}".format(width,height))
 
