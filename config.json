@@ -4,5 +4,5 @@
     "commit1": "",
     "commit2": "",
     "update": "GITHUB",
-    "ai": "CUDAExecutionProvider"
+    "ai": "DmlExecutionProvider"
 }
