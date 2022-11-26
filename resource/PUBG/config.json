@@ -2,7 +2,7 @@
     "macro_config": {
         "driver": "LGS",
         "adsmode": "HOLD",
-        "aimbutton": 4,
+        "aimbutton": 11,
         "debug": false,
         "weapon": "none",
         "scope": 1,

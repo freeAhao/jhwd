@@ -64,5 +64,11 @@
         "",
         "",
         false
+    ],
+    "turn180": [
+        "    move=100\n    for i=10,1,-1 do\n        MoveMouseRelative(move, 0)\n    end\n",
+        "",
+        "180\u5ea6\u8f6c\u8eab",
+        true
     ]
 }
