@@ -22,6 +22,7 @@ class MacroMode(Enum):
 
     LGS = "LGS"
     GHUB = "GHUB"
+    GHUB2 = "GHUB-通用鼠标"
 
 class MacroConfigController():
 
@@ -56,7 +57,6 @@ class MacroConfigController():
 
         for macroMode in MacroMode:
             self.view.driversoft.addItem(macroMode.value, userData=macroMode)
-        self.driver_changed()
 
         for aimMode in AimMode:
             self.view.modes.addItem(aimMode.value, userData=aimMode)
@@ -95,6 +95,8 @@ class MacroConfigController():
         keyBindings = []
         for key in self.config["keybinds"]:
             modifiers = key.split("+")[0].split(",")
+            if len(modifiers) == 1 and modifiers[0] == "":
+                modifiers = []
             mouseBtn = key.split("+")[-1]
             try:
                 scriptFunc = self.macroFunctions[self.config["keybinds"][key]] 
@@ -121,7 +123,10 @@ class MacroConfigController():
 
         keyBinding_data = self.tablemodel.data.copy()
         keyBinding_data.append(KeyBinding(1,self.macroFunctions["leftbutton"]))
-        keyBinding_data.append(KeyBinding(2,self.macroFunctions["rightbutton"]))
+        rightkey = 2
+        if self.view.driversoft.currentData() == MacroMode.GHUB2:
+            rightkey = 3
+        keyBinding_data.append(KeyBinding(rightkey,self.macroFunctions["rightbutton"]))
 
         ## render config.lua
         result = ""
@@ -195,13 +200,6 @@ class MacroConfigController():
 
         Settings().save_config_to_json()
 
-    def load_configs(self,configpath):
-        config = None
-        with open(configpath, "r") as f:
-            config = json.load(f)
-        if config:
-            self.config = config
-        
     def load_functions(self, script_file_path: str) -> str:
         with open(script_file_path, "r") as f:
             scripts = json.load(f)
@@ -236,6 +234,16 @@ class MacroConfigController():
             with open(save_path, "w") as f:
                 f.write(result)
         elif self.view.driversoft.currentData() == MacroMode.GHUB:
+            try:
+                mainscript = self.macroFunctions["script"]
+            except:
+                traceback.print_exc()
+                return
+            result = mainscript.openContent.format(
+                tempfile.tempdir.replace("\\", "/")+"/config.lua")
+            with open(save_path, "w") as f:
+                f.write(result)
+        elif self.view.driversoft.currentData() == MacroMode.GHUB2:
             try:
                 mainscript = self.macroFunctions["script"]
             except:
@@ -304,6 +312,8 @@ class MacroConfigController():
             self.macroFunctions = self.parse_functions_to_model(self.load_functions(Settings().resource_dir+"lgsscripts.json"))
         if macro == MacroMode.GHUB:
             self.macroFunctions = self.parse_functions_to_model(self.load_functions(Settings().resource_dir+"ghubscripts.json"))
+        if macro == MacroMode.GHUB2:
+            self.macroFunctions = self.parse_functions_to_model(self.load_functions(Settings().resource_dir+"ghub2scripts.json"))
         self.load_macro_functions()
 
     def load_macro_functions(self):
@@ -352,6 +362,8 @@ class MacroConfigController():
             save_file = Settings().resource_dir+"lgsscripts.json"
         elif self.view.driversoft.currentData() == MacroMode.GHUB: 
             save_file = Settings().resource_dir+"ghubscripts.json"
+        elif self.view.driversoft.currentData() == MacroMode.GHUB2: 
+            save_file = Settings().resource_dir+"ghub2scripts.json"
 
         with open(save_file,"w") as file:
             json.dump(result, file, indent=4)

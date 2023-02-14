@@ -1,0 +1,13 @@
+{
+    "macro_config": {
+        "driver": "GHUB-\u901a\u7528\u9f20\u6807",
+        "adsmode": "HOLD",
+        "keybinds": {
+            "lctrl,lshift,lalt+5": "reloadconfig"
+        }
+    },
+    "weapon": {
+        "accuracy": 0.5,
+        "sleep": 81
+    }
+}

@@ -49,7 +49,7 @@ class QWeaponConfig(QWidget):
         sensitivity = QLineEdit("1")
         sensitivitygroup = self.lineedit_with_label("灵敏度系数",sensitivity)
 
-        debug = QCheckBox("debug弹道调试")
+        debug = QCheckBox("debug弹道调试(按右键自动重新加载)")
 
         grid.addWidget(weapondataprofilesgroup,0,0,1,2)
         grid.addWidget(loadinggroup,1,0,1,2)

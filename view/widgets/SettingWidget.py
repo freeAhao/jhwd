@@ -305,7 +305,7 @@ class QGameSettingWidget(QWidget):
         gameBtnGroupLayout = QGridLayout()
         gameBtnGroup.setLayout(gameBtnGroupLayout)
 
-        for game in ["APEX","PUBG"]:
+        for game in ["APEX","PUBG","General"]:
             gameBTN = QRadioButton(game)
             gameBTN.setObjectName(game)
             gameBtnGroupLayout.addWidget(gameBTN)
@@ -391,6 +391,26 @@ class QGameSettingWidget(QWidget):
                 message_critical("错误",str(e))
 
         elif game == "APEX":
+            try:
+                recognizer = ApexAutoRecognizer()
+                bloodfix = QBloodFix()
+                ai = QAiFix()
+                antishake = QAntiShakeFix()
+                macro = ApexMacroConfigController().view
+                weapon = ApexWeaponConfigController().view
+                recoil = ImageRecoilAnalyze()
+                tab.addTab(recognizer,"自动识别")
+                tab.addTab(bloodfix,"血雾")
+                tab.addTab(ai,"AI")
+                tab.addTab(antishake,"防抖")
+                tab.addTab(macro,"宏配置")
+                tab.addTab(weapon,"武器参数")
+                tab.addTab(recoil,"弹道辅助分析")
+            except Exception as e:
+                traceback.print_exc()
+                message_critical("错误",str(e))
+
+        elif game == "General":
             try:
                 recognizer = ApexAutoRecognizer()
                 bloodfix = QBloodFix()

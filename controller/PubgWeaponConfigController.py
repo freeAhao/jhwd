@@ -226,11 +226,13 @@ class WeaponConfigController():
                 movex = round(offsetx * rate )
                 movey = round((base + offsety) * rate )
 
-                countx = countx + movex
-                county = county + movey
+                # countx = countx + movex
+                # county = county + movey
 
-                countdatax.append(countx)
-                countdatay.append(county)
+                # countdatax.append(countx)
+                # countdatay.append(county)
+                countdatax.append(movex)
+                countdatay.append(movey)
                 # self.view.weapon_data_result.append(f"{{{i},{movey},0}}")
 
             countdatax = str(countdatax).replace("[","{").replace("]","}")

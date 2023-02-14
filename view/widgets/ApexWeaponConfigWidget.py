@@ -43,7 +43,7 @@ class QWeaponConfig(QWidget):
         weapondataprofiles = QComboBox()
         weapondataprofilesgroup = self.lineedit_with_label("预设弹道",weapondataprofiles)
 
-        debug = QCheckBox("debug弹道调试")
+        debug = QCheckBox("debug弹道调试(按右键自动重新加载)")
 
         loading = QLineEdit()
         loadinggroup = self.lineedit_with_label("cpu负载",loading)

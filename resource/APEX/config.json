@@ -1,9 +1,9 @@
 {
     "macro_config": {
-        "driver": "LGS",
+        "driver": "GHUB-\u901a\u7528\u9f20\u6807",
         "adsmode": "HOLD",
         "keybinds": {
-            "lctrl,lshift,lalt+5": "reloadconfig"
+            "+2": "reloadconfig"
         }
     },
     "pose": {

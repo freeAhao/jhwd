@@ -67,7 +67,7 @@ class WeaponConfigController():
         self.datas = {
             "loading": 0,
             "dq": ["true"],
-            "dqrate": 2,
+            "dqrate": [2],
             "debug": ["false"],
             "weapons": {}
         }
@@ -78,7 +78,7 @@ class WeaponConfigController():
                 is_weapon_data = True
                 # global sensitive
                 for k in self.datas.keys():
-                    if f.find(k)>=0:
+                    if f.find(k+"=")>=0:
                         leftquote = f.split("=")[-1].find("{")
                         rightquote = f.split("=")[-1].find("}")
                         self.datas[k] = f.split("=")[-1][leftquote+1:rightquote].split(",")
@@ -135,6 +135,8 @@ class WeaponConfigController():
     def block_ui_event(self,block:bool):
         for widget in [self.view.loading,
                        self.view.dq,
+                       self.view.debug,
+                       self.view.dqrate,
                        self.view.speed,
                        self.view.yrate,
                        self.view.xrate,
@@ -199,11 +201,13 @@ class WeaponConfigController():
                 movex = (offsetx) * xrate
                 movey = (base + offsety) * yrate
 
-                countx = countx + movex
-                county = county + movey
+                # countx = countx + movex
+                # county = county + movey
 
-                countdatax.append("{:.2f}".format(countx))
-                countdatay.append("{:.2f}".format(county))
+                # countdatax.append("{:.2f}".format(countx))
+                # countdatay.append("{:.2f}".format(county))
+                countdatax.append("{:.2f}".format(movex))
+                countdatay.append("{:.2f}".format(movey))
                 # self.view.weapon_data_result.append(f"{{{i},{movey},0}}")
 
             countdatax = str(countdatax).replace("[","{").replace("]","}")
@@ -259,8 +263,11 @@ class WeaponConfigController():
 
     def delteweapon(self):
         weapon_name = self.view.weapons.currentText()
-        del self.datas["weapons"][weapon_name]
-        self.fill_ui_data()
+        try:
+            del self.datas["weapons"][weapon_name]
+            self.fill_ui_data()
+        except:
+            pass
 
     def apply(self):
         result = ""

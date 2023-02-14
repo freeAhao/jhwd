@@ -1,6 +1,6 @@
 {
     "macro_config": {
-        "driver": "LGS",
+        "driver": "GHUB-\u901a\u7528\u9f20\u6807",
         "adsmode": "HOLD",
         "aimbutton": 11,
         "debug": false,
@@ -12,12 +12,12 @@
         "a2": 1,
         "a3": 1,
         "keybinds": {
-            "lshift,lctrl,lalt+5": "reloadconfig"
+            "+2": "reloadconfig"
         }
     },
     "pose": {
         "accuracy": 0.5,
-        "sleep": 67
+        "sleep": 80
     },
     "attachment": {
         "accuracy": 0.9,
@@ -25,6 +25,6 @@
     },
     "weapon": {
         "accuracy": 0.5,
-        "sleep": 55
+        "sleep": 75
     }
 }
