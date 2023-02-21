@@ -103,6 +103,7 @@ class MacroConfigController():
         self.view.table.selectionModel().selectionChanged.connect(self.table_select_row)
 
     def init_ui_with_config(self):
+        self.view.driversoft.setCurrentIndex( -1 )
         self.view.driversoft.setCurrentIndex( self.view.driversoft.findData(MacroMode(self.config["driver"])) )
         self.view.modes.setCurrentIndex( self.view.modes.findData(AimMode(self.config["adsmode"])) )
         self.view.aim.setCurrentIndex( self.view.aim.findData(self.config["aimbutton"]) )
@@ -264,36 +265,11 @@ class MacroConfigController():
         if not save_path:
             return
 
-        if self.view.driversoft.currentData() == MacroMode.LGS:
-            try:
-                mainscript = self.macroFunctions["script"]
-            except:
-                print("配置文件损坏")
-                return
-            result = mainscript.openContent.format(
-                tempfile.tempdir.replace("\\", "/")+"/config.lua")
-            with open(save_path, "w") as f:
-                f.write(result)
-        elif self.view.driversoft.currentData() == MacroMode.GHUB:
-            try:
-                mainscript = self.macroFunctions["script"]
-            except:
-                print("配置文件损坏")
-                return
-            result = mainscript.openContent.format(
-                tempfile.tempdir.replace("\\", "/")+"/config.lua")
-            with open(save_path, "w") as f:
-                f.write(result)
-        elif self.view.driversoft.currentData() == MacroMode.GHUB2:
-            try:
-                mainscript = self.macroFunctions["script"]
-            except:
-                print("配置文件损坏")
-                return
-            result = mainscript.openContent.format(
-                tempfile.tempdir.replace("\\", "/")+"/config.lua")
-            with open(save_path, "w") as f:
-                f.write(result)
+        mainscript = self.macroFunctions["script"]
+        result = mainscript.openContent.format(
+            tempfile.tempdir.replace("\\", "/")+"/config.lua")
+        with open(save_path, "w") as f:
+            f.write(result)
 
     def mode_changed(self):
         self.view.toggle_aimMode_display(False) if self.view.modes.currentData() == AimMode.CLICK_MOUSE_BTN_2 else self.view.toggle_aimMode_display(True)
@@ -367,6 +343,8 @@ class MacroConfigController():
     
     def driver_changed(self):
         macro = self.view.driversoft.currentData()
+        if not macro:
+            return
         self.config["driver"] = macro.value
         if macro == MacroMode.LGS:
             self.macroFunctions = self.parse_functions_to_model(self.load_functions(Settings().resource_dir+"lgsscripts.json"))
