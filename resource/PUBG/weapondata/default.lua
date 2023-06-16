@@ -1,4 +1,4 @@
-loading={10}
+loading={5}
 
 sensitivityrate={1.0}
 

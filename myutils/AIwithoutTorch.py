@@ -14,9 +14,9 @@ class AI():
         self.w = Settings().resource_dir+"weights/"
         self.INPUT_WIDTH         = 640
         self.INPUT_HEIGHT        = 640
-        self.SCORE_THRESHOLD     = 0.4
-        self.NMS_THRESHOLD       = 0.4
-        self.CONFIDENCE_THRESHOLD= 0.4
+        self.SCORE_THRESHOLD     = 0.75
+        self.NMS_THRESHOLD       = 0.75
+        self.CONFIDENCE_THRESHOLD= 0.75
         self.FONT_FACE           = cv2.FONT_HERSHEY_SIMPLEX
         self.FONT_SCALE          = 0.7
         self.THICKNESS           = 1
@@ -27,8 +27,9 @@ class AI():
         self.YELLOW              = (0,255,255)
         self.RED                 = (0,0,255)
         self.fp16                = False
-        self.airegion            = 0.25
+        self.airegion            = 0.6
         self.fixregion           = 1.5
+        self.TIME                = (1.0/255.0)
 
     def model(self,im):
         pass
@@ -109,7 +110,7 @@ class AI():
             width = box[2]
             height = box[3]
             frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
-            iboxs.append([left,top,width,height])
+            iboxs.append([left,top,width,height,confidences[i]])
         return frame,iboxs
 
     def drawPred(self, frame, classId, conf, left, top, right, bottom):
@@ -143,9 +144,11 @@ class AI():
 
     def detect(self,im0):
         im0 = cv2.cvtColor(im0,cv2.COLOR_BGRA2BGR)
-        im, im0 = self.circle_mask(im0)
+        # im, im0 = self.circle_mask(im0)
+        im = im0
         im, newh, neww, top, left = self.resize_image(im)
-        im = im.astype(np.float32) / 255.0
+        im = np.asarray(im, dtype=np.float32)
+        im *= self.TIME
         im = np.expand_dims(np.transpose(im, (2, 0, 1)), axis=0)
 
         outs = self.model(im)
@@ -183,10 +186,12 @@ class ORDML(AI):
         meta = session.get_modelmeta().custom_metadata_map  # metadata
         if 'stride' in meta:
             self.stride, self.names = int(meta['stride']), eval(meta['names'])
+        self.input_name = self.session.get_inputs()[0].name
+        self.output_name = self.session.get_outputs()[0].name
 
 
     def model(self,im):
-        res = self.session.run([self.session.get_outputs()[0].name], {self.session.get_inputs()[0].name: im})[0].squeeze(axis=0)
+        res = self.session.run([self.output_name], {self.input_name: im})[0].squeeze(axis=0)
         return res
 
 class OVINO(AI):

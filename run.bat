@@ -1,0 +1,1 @@
+venv39\Scripts\python.exe app.py

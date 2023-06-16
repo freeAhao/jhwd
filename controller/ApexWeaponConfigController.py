@@ -14,6 +14,7 @@ class WeaponConfigController():
 
     datas = {
         "loading": 0,
+        "sensitivity": 0,
         "dq": ["true"],
         "dqrate": 2,
         "debug": ["false"],
@@ -49,6 +50,7 @@ class WeaponConfigController():
         self.view.delButton.clicked.connect(self.delteweapon)
 
         self.view.loading.textChanged.connect(self.updateRate)
+        self.view.sensitivity.textChanged.connect(self.updateRate)
         self.view.dq.stateChanged.connect(self.updateRate)
         self.view.dqrate.textChanged.connect(self.updateRate)
         self.view.debug.stateChanged.connect(self.updateRate)
@@ -66,6 +68,7 @@ class WeaponConfigController():
             texts = f.readlines()
         self.datas = {
             "loading": 0,
+            "sensitivity": 0,
             "dq": ["true"],
             "dqrate": [2],
             "debug": ["false"],
@@ -134,6 +137,7 @@ class WeaponConfigController():
 
     def block_ui_event(self,block:bool):
         for widget in [self.view.loading,
+                       self.view.sensitivity,
                        self.view.dq,
                        self.view.debug,
                        self.view.dqrate,
@@ -227,6 +231,7 @@ class WeaponConfigController():
     def fill_ui_data(self):
         self.block_ui_event(True)
         self.view.loading.setText(self.datas["loading"][0])
+        self.view.sensitivity.setText(self.datas["sensitivity"][0])
         self.view.debug.setChecked(self.datas["debug"][0]=="true")
         self.view.dq.setChecked(self.datas["dq"][0]=="true")
         self.view.dqrate.setText(self.datas["dqrate"][0])
@@ -313,6 +318,14 @@ class WeaponConfigController():
         except Exception as e:
             self.view.loading.setText("")
             self.view.loading.setFocus()
+            return
+
+        try:
+            float(self.view.sensitivity.text())
+            self.datas["sensitivity"] = [str(float(self.view.sensitivity.text()))]
+        except Exception as e:
+            self.view.sensitivity.setText("")
+            self.view.sensitivity.setFocus()
             return
 
         try:

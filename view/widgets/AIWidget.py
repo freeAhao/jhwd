@@ -51,10 +51,10 @@ class QAiFix(QRecognizer):
         yRate = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
         xRate.setMaximum(5)
         xRate.setMinimum(0)
-        yRate.setMaximum(1)
+        yRate.setMaximum(5)
         yRate.setMinimum(0)
-        xRate.setValue(0.2)
-        yRate.setValue(0)
+        xRate.setValue(0.5)
+        yRate.setValue(0.5)
 
         self.xRate = xRate
         self.yRate = yRate
@@ -96,9 +96,9 @@ class QAiFix(QRecognizer):
         self.track = track
 
         tracktime = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
-        tracktime.setMaximum(3)
-        tracktime.setMinimum(0.1)
-        tracktime.setValue(0.5)
+        tracktime.setMaximum(1)
+        tracktime.setMinimum(0)
+        tracktime.setValue(0.05)
         tracktime.setSingleStep(0.01)
         self.tracktime = tracktime
 
@@ -113,10 +113,10 @@ class QAiFix(QRecognizer):
         enginegroup.setLayout(grid)
 
         airegion = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
-        airegion.setMaximum(0.5)
-        airegion.setMinimum(0)
+        airegion.setMaximum(1)
+        airegion.setMinimum(0.5)
         airegion.setSingleStep(1)
-        airegion.setValue(0.25)
+        airegion.setValue(0.6)
         self.airegion = airegion
 
         fixregion = QLabeledDoubleSlider(Qt.Orientation.Horizontal)
@@ -143,7 +143,7 @@ class QAiFix(QRecognizer):
         for slider in [ai_SCORE_THRESHOLD,ai_NMS_THRESHOLD,ai_CONFIDENCE_THRESHOLD]:
             slider.setMaximum(1)
             slider.setMinimum(0)
-            slider.setValue(0.4)
+            slider.setValue(0.75)
         grid.addWidget(ai_SCORE_THRESHOLD)
         grid.addWidget(ai_NMS_THRESHOLD)
         grid.addWidget(ai_CONFIDENCE_THRESHOLD)

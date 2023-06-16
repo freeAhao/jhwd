@@ -126,7 +126,7 @@ class AIRecognizeController(RecognizeController):
 
     def start_rec(self,start:bool=True):
         provider = Settings().app_config["ai"] if "ai" in Settings().app_config else 'CPUExecutionProvider'
-        self.recoginizer = AIRecoginzer(self.c,0.001,0,provider=provider)
+        self.recoginizer = AIRecoginzer(self.c,0,0,provider=provider)
         self.thread = start_q_thread(self.view, self.recoginizer,start)
 
     def update(self, d:dict):
@@ -227,20 +227,25 @@ class Recognizer(QObject):
         while self.run:
             start_time = time.time()
             self.strat_time = start_time
-            self.recognize()
-            sleep(self.sleeptime)
+            try:
+                self.recognize()
+            except Exception as e:
+                print(e)
+            if self.sleeptime>0:
+                sleep(self.sleeptime)
             end_time = time.time()
             self.qt_comunicate.updateFPS.emit(round(1/(end_time-start_time))) if self.qt_comunicate else None
 
 class AIRecoginzer(Recognizer):
 
-    xrate = 0.2
-    yrate = 0
+    xrate = 0.5
+    yrate = 0.5
     box = None
     track = True
-    tracktime = 0.5
+    tracktime = 0.03
+    # trackbox = None
 
-    def __init__(self,qt_comunicate=None, sleeptime=0.01,accuracy=0,provider='CPUExecutionProvider',):
+    def __init__(self,qt_comunicate=None, sleeptime=0,accuracy=0,provider='CPUExecutionProvider',):
         super().__init__(qt_comunicate, sleeptime,accuracy)
         try:
             self.ai = ORDML(provider)
@@ -278,10 +283,11 @@ class AIRecoginzer(Recognizer):
     def recognize(self):
         if not self.ai:
             return
-        box = (round(self.resolution[0]/2 - round(320/1920*self.resolution[0])+self.left),
-               round(self.resolution[1]/2 - round(320/1080*self.resolution[1])+self.top),
-               round(self.resolution[0]/2 + round(320/1920*self.resolution[0])+self.left),
-               round(self.resolution[1]/2 + round(320/1080*self.resolution[1]))+self.top)
+        region = 256*self.ai.airegion
+        box = (round(self.resolution[0]/2 - round(region/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 - round(region/1080*self.resolution[1])+self.top),
+               round(self.resolution[0]/2 + round(region/1920*self.resolution[0])+self.left),
+               round(self.resolution[1]/2 + round(region/1080*self.resolution[1]))+self.top)
         width = (box[2]-box[0])
         height = (box[3]-box[1])
         center = (int((width/2)),int((height/2)))
@@ -292,11 +298,20 @@ class AIRecoginzer(Recognizer):
         # 目标跟踪
         if self.track and self.box and time.time()-self.detecttime<self.tracktime:
             trackimg = cv.cvtColor(cvimg,cv.COLOR_BGRA2BGR)
-            trackimg,simg = self.ai.circle_mask(trackimg)
+            simg = trackimg.copy()
+            # trackimg,simg = self.ai.circle_mask(trackimg)
             ok,bbox = self.tracker.update(trackimg)
             il,it,iw,ih = bbox
+
+            # if self.trackbox:
+            #     last_ip1 = self.trackbox[0]
+            #     last_ip2 = self.trackbox[1]
+
+            # 用于绘制内框
             ip1 = (int(il),int(it))
             ip2 = (int(il+iw),int(it+ih))
+            # self.trackbox = [ip1,ip2]
+            # 用于绘制外框
             op1 = (
                 int(il-(self.ai.fixregion/2)*iw),
                 int(it-(self.ai.fixregion/3)*ih)
@@ -309,33 +324,45 @@ class AIRecoginzer(Recognizer):
             if ok and self.pointer_in_range(center,bbox) and self.area_limit(bbox):
                 cv.rectangle(simg,ip1,ip2,(0,255,0),3,cv.LINE_AA)
                 cv.putText(simg, "TARGET", ip1, cv.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3,cv.LINE_AA)
-                cv.rectangle(simg,op1,op2,(255,178,50),1,cv.LINE_AA)
+                # cv.rectangle(simg,op1,op2,(255,178,50),1,cv.LINE_AA)
+                cv.circle(simg,center,5,(0,255,0),3,cv.LINE_AA)
+
+                target_point = [(bbox[2]/2),bbox[3]/3]
+                # if self.trackbox and (last_ip1[0]-ip1[0]>1 and last_ip2[0]-ip2[0]>1):
+                #     #left move
+                #     target_point = [0,bbox[3]/3]
+                # elif self.trackbox and (last_ip1[0]-ip1[0]<-1 and last_ip2[0]-ip2[0]<-1):
+                #     #right  move
+                #     target_point = [bbox[2],bbox[3]/3]
 
                 boxcenter = (
-                    round(bbox[0]+(bbox[2]/2)),
-                    round(bbox[1]+(bbox[3]/5)),
+                    round(bbox[0]+target_point[0]),
+                    round(bbox[1]+target_point[1]),
                 )
                 cv.line(simg,center,boxcenter,(255,255,255),3,cv.LINE_AA)
-                cv.circle(simg,center,5,(0,255,0),3,cv.LINE_AA)
 
                 movex = int((boxcenter[0]-center[0])*self.xrate)
                 movey = int((boxcenter[1]-center[1])*self.yrate)
                 self.qt_comunicate.update.emit({"move":(movex,movey)})
 
-                text = "{}fps".format(round(1/(time.time()-self.strat_time)))
-                cv.putText(simg,text,(5,50),cv.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+                # text = "{}fps".format(round(1/(time.time()-self.strat_time)))
+                # cv.putText(simg,text,(5,50),cv.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+                simg = cv.resize(simg,[256,256],interpolation=cv.INTER_AREA)
                 qimg = cv_img_to_qimg(simg)
                 self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
                 return
             else:
                 self.qt_comunicate.update.emit({"move":(0,0)})
                 self.box = None
+                self.trackbox = None
 
         # ai目标检测
+        # t0 = time.time()
         img,box = self.ai.detect(cvimg)
+        # print("{}".format(int((time.time()-t0)*1000)))
 
         if box:
-            boxcenter,bbox = self.findclose(box,center,width,height)
+            boxcenter,bbox,score = self.findclose(box,center,width,height)
             if not self.area_limit(bbox):
                 self.box = None
                 self.qt_comunicate.update.emit({"move":(0,0)})
@@ -363,11 +390,14 @@ class AIRecoginzer(Recognizer):
             self.box = None
             self.qt_comunicate.update.emit({"move":(0,0)})
 
-        text = "{}fps".format(round(1/(time.time()-self.strat_time)))
-        cv.putText(img,text,(5,50),cv.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+
+        # text = "{}fps".format(round(1/(time.time()-self.strat_time)))
+        # cv.putText(img,text,(5,50),cv.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
         if box and bbox and self.area_limit(bbox):
             cv.rectangle(img,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,0),3,cv.LINE_AA)
         cv.circle(img,center,5,(0,255,0),3,cv.LINE_AA)
+
+        img = cv.resize(img,[256,256],interpolation=cv.INTER_AREA)
         qimg = cv_img_to_qimg(img)
         self.qt_comunicate.update.emit({"img":qimg}) if self.qt_comunicate else None
     
@@ -394,10 +424,11 @@ class AIRecoginzer(Recognizer):
         boxcenter = None
         # 找到离中心最近的目标
         closebox = None
+        score = None
         for b in boxs:
             boxcenter_t = (
                 round(b[0]+(b[2]/2)),
-                round(b[1]+(b[3]/5)),
+                round(b[1]+(b[3]/3)),
             )
             x = int(boxcenter_t[0]-center[0])
             y = int(boxcenter_t[1]-center[1])
@@ -405,13 +436,14 @@ class AIRecoginzer(Recognizer):
             if count == 0 or sumxy < count:
                 count = sumxy
                 boxcenter = boxcenter_t
-                closebox = b
+                closebox = b[:4]
+                score = b[4]
             else:
                 continue
         # 识别率不高的情况下，不锁准心外的目标
         # if center[0] > closebox[0]-(self.ai.fixregion)*closebox[2] and center[0] < closebox[0]+(self.ai.fixregion+1)*closebox[2] and center[1] > closebox[1]-(self.ai.fixregion)*closebox[3] and center[1] < closebox[1]+(self.ai.fixregion+1)*closebox[3]:
         #     return boxcenter,closebox
-        return boxcenter,closebox
+        return boxcenter,closebox,score
     
     def changeEngine(self,engine):
         if engine in self.ai.providers.keys():
@@ -614,7 +646,7 @@ class AntiShakeController(RecognizeController):
         self.view.yRate.valueChanged.connect(self.changeRate)
 
     def start_rec(self,start:bool=True):
-        self.recoginizer = AntiShakeRecoginzer(self.c,0.001)
+        self.recoginizer = AntiShakeRecoginzer(self.c,0)
         self.thread = start_q_thread(self.view, self.recoginizer,start)
 
     def update(self,d:dict):

@@ -47,6 +47,8 @@ class QWeaponConfig(QWidget):
 
         loading = QLineEdit()
         loadinggroup = self.lineedit_with_label("cpu负载",loading)
+        sensitivity = QLineEdit()
+        sensitivitygroup = self.lineedit_with_label("压枪强度",sensitivity)
         dq = QCheckBox("抖枪")
         dqrate = QLineEdit("2")
         dqrategroup = self.lineedit_with_label("抖枪强度",dqrate)
@@ -54,9 +56,10 @@ class QWeaponConfig(QWidget):
 
         grid.addWidget(weapondataprofilesgroup,0,0,1,2)
         grid.addWidget(loadinggroup,1,0,1,2)
-        grid.addWidget(debug,2,0)
-        grid.addWidget(dq,3,0)
-        grid.addWidget(dqrategroup,3,1)
+        grid.addWidget(sensitivitygroup,2,0,1,2)
+        grid.addWidget(debug,3,0)
+        grid.addWidget(dq,4,0)
+        grid.addWidget(dqrategroup,5,1)
         group.setLayout(grid)
         self.grid.addWidget(group,0,0)
 
@@ -124,6 +127,7 @@ class QWeaponConfig(QWidget):
 
         self.weapondataprofiles = weapondataprofiles
         self.loading = loading
+        self.sensitivity = sensitivity
         self.debug = debug
         self.dq = dq
         self.dqrate = dqrate
