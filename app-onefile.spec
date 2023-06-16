@@ -7,7 +7,8 @@ block_cipher = None
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
+    binaries=[('venv39/Lib/site-packages/onnxruntime/capi/onnxruntime_providers_cuda.dll','./onnxruntime/capi/'),
+              ('venv39/Lib/site-packages/onnxruntime/capi/onnxruntime_providers_tensorrt.dll','./onnxruntime/capi/')],
     datas=[],
     hiddenimports=[],
     hookspath=[],
