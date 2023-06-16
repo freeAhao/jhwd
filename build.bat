@@ -1,1 +1,1 @@
-pyinstaller.exe app-onefile-git.spec
+pyinstaller.exe app-onefile-local.spec

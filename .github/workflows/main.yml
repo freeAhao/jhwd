@@ -20,7 +20,7 @@ jobs:
     - run: pip install -r requirements.txt
 
     - name: Build
-      run: pyinstaller app-onefile.spec
+      run: pyinstaller app-onefile-git.spec
 
     - name: Copy resource
       run: |
